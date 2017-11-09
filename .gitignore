@@ -1,0 +1,8 @@
+media/.sass-cache
+media/card_images
+media/images
+media/scss
+node_modules
+package
+package_lock
+.cardDatebase
