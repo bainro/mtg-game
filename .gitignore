@@ -5,4 +5,4 @@ media/scss
 node_modules
 package
 package_lock
-.cardDatebase
+cardDatebase.json
