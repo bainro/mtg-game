@@ -1,0 +1,321 @@
+body {
+  font-family: 'Times New Roman';
+  background: #45676F; }
+
+html, body, ul, ol, li, form, fieldset, legend {
+  margin: 0;
+  padding: 0; }
+
+h1, h2, h3, h4, h5, h6, p {
+  margin-top: 0; }
+
+fieldset, img {
+  border: 0; }
+
+li {
+  list-style: none; }
+
+.wrapper {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  box-sizing: border-box; }
+
+*:focus {
+  outline: none; }
+
+* {
+  box-sizing: border-box; }
+
+.board {
+  height: 500px;
+  width: 950px;
+  position: relative;
+  border-radius: 10px 5px 5px 5px;
+  z-index: 1; }
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #852f00;
+  background-image: url("/images/dark_wood.png");
+  background-repeat: repeat;
+  font-family: calibri;
+  z-index: -10000;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none; }
+
+#speak {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  display: none; }
+  #speak #text {
+    width: 67%;
+    border-radius: 5px; }
+  #speak #chatbutton {
+    border-radius: 15px;
+    float: right;
+    width: 30%; }
+
+#tabs {
+  overflow: hidden; }
+  #tabs a {
+    text-decoration: none;
+    color: white;
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
+    background-color: rgba(102, 102, 102, 0.61);
+    border-radius: 25px;
+    border: solid 1px black;
+    padding: .2em 0; }
+  #tabs li {
+    padding: .5em 0;
+    display: flex;
+    float: left;
+    width: 30%;
+    margin: 0 .1em; }
+  #tabs:first-child {
+    padding-left: .5em; }
+
+#chatroom {
+  overflow-y: scroll;
+  overflow-x: hidden;
+  max-height: 235px; }
+
+#logroom {
+  overflow-y: scroll;
+  max-height: 258px;
+  padding-left: .75em; }
+  #logroom li {
+    list-style: initial;
+    margin-left: .4em;
+    margin-right: .4em; }
+
+@keyframes pulse {
+  0% {
+    background-color: #3776db; }
+  50% {
+    background-color: #FF4136; }
+  100% {
+    background-color: #3776db; } }
+.divider {
+  height: 2px;
+  width: 510px;
+  background-color: black;
+  position: absolute;
+  top: 248px;
+  left: 220px;
+  z-index: 1; }
+
+#chooseDeck {
+  z-index: 2; }
+  #chooseDeck input {
+    border-radius: 40px;
+    background-color: grey;
+    color: black;
+    height: 20px;
+    position: absolute;
+    bottom: 140px;
+    right: 84px; }
+  #chooseDeck select {
+    border-radius: 40px;
+    background-color: grey;
+    color: black;
+    height: 21px;
+    animation: pulse 6s infinite;
+    position: absolute;
+    bottom: 165px;
+    right: 27px; }
+
+.myCard {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 88px;
+  width: 63px; }
+  .myCard p {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
+    color: white;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; }
+
+.theirCard {
+  position: absolute;
+  bottom: 412px;
+  right: 0px;
+  height: 88px;
+  width: 63px;
+  z-index: 3; }
+  .theirCard p {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
+    color: white;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; }
+
+img {
+  max-width: 100%; }
+
+.mag {
+  height: 308px;
+  width: 220px;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  border-radius: 10px 10px 10px 10px;
+  z-index: 2; }
+
+#shuffle {
+  position: absolute;
+  display: none;
+  margin-top: 1em;
+  left: 14px;
+  border-radius: 10px; }
+
+.magOppo {
+  height: 308px;
+  width: 220px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 10px 10px 10px 10px;
+  z-index: 2;
+  background-color: rgba(40, 40, 40, 0.79);
+  padding: 0; }
+
+.handZone {
+  height: 132px;
+  width: 333px;
+  position: absolute;
+  bottom: 0;
+  left: 75px;
+  font-size: 3em;
+  text-align: center;
+  line-height: 132px;
+  border: 1px solid black;
+  border-radius: 20px;
+  background-color: rgba(204, 9, 9, 0.81); }
+
+.handZoneOppo {
+  height: 132px;
+  width: 333px;
+  position: absolute;
+  top: 0;
+  right: 75px;
+  background-color: red;
+  font-size: 3em;
+  text-align: center;
+  line-height: 132px;
+  z-index: 1;
+  border: 1px solid black;
+  border-radius: 20px;
+  background-color: rgba(15, 31, 153, 0.81); }
+
+.card {
+  border-radius: 4px;
+  transition: transform .3s linear; }
+  .card img {
+    border-radius: 4px; }
+
+.triggered {
+  max-height: 100%;
+  max-width: 100%;
+  position: absolute;
+  top: 0; }
+
+.grave {
+  height: 88px;
+  width: 63px;
+  position: absolute;
+  bottom: 100px;
+  left: 0; }
+
+.graveOppo {
+  height: 88px;
+  width: 63px;
+  position: absolute;
+  top: 100px;
+  right: 0;
+  transform: scale(-1, 1); }
+
+#search {
+  margin-top: 1em;
+  position: absolute;
+  display: none;
+  left: 80px;
+  border-radius: 10px; }
+
+#token {
+  position: absolute;
+  margin-top: 1em;
+  display: none;
+  left: 151px;
+  border-radius: 10px; }
+
+.token {
+  position: absolute;
+  top: 86px;
+  left: 142px;
+  height: 88px;
+  width: 63px;
+  z-index: 2000;
+  overflow: hidden;
+  border-radius: 10px;
+  border: solid 1px black;
+  transition: transform .3s linear;
+  line-height: 88px;
+  text-align: center;
+  font-family: calibri;
+  font-weight: bold;
+  color: white;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; }
+
+#myHealth {
+  position: absolute;
+  bottom: 6px;
+  left: 0px;
+  height: 50px;
+  width: 50px;
+  font-size: 2.2em;
+  font-family: calibri;
+  color: white;
+  background-color: rgba(204, 9, 9, 0.81);
+  cursor: pointer;
+  line-height: 50px;
+  text-align: center;
+  border-radius: 50%;
+  box-shadow: 0 6px #b41e1e;
+  display: none; }
+
+#theirHealth {
+  position: absolute;
+  bottom: 6px;
+  left: 170px;
+  height: 50px;
+  width: 50px;
+  font-size: 2.2em;
+  font-family: calibri;
+  color: white;
+  background-color: rgba(15, 31, 153, 0.81);
+  cursor: pointer;
+  line-height: 50px;
+  text-align: center;
+  border-radius: 50%;
+  box-shadow: 0 6px #1e3d75;
+  display: none; }
+
+/*# sourceMappingURL=styles.css.map */
