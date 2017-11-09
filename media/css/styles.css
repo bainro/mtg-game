@@ -261,6 +261,13 @@ img {
   left: 80px;
   border-radius: 10px; }
 
+#help {
+  position: absolute;
+  left: 80px;
+  bottom: 8px;
+  background-color: grey;
+  border-radius: 10px; }
+
 #token {
   position: absolute;
   margin-top: 1em;

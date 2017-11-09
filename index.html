@@ -34,6 +34,7 @@
           <input id='shuffle' type='button' value="shuffle">
           <input id='search' type='button' value="search">
           <input id='token' type='button' value="token">
+          <input id='help' type='button' value="RULES">
           <div id="myHealth">
             20
           </div>
@@ -109,6 +110,10 @@
             $('#chatroom')[0].scrollTop = $('#chatroom')[0].scrollHeight - $('#chatroom')[0].clientHeight; 
             return false;
           }
+        });
+
+        $('#help').on('click', function(event){
+          window.open('http://rkbain.com/rules.html');
         });
 
         $('#myHealth').on('mousedown', function(event){
