@@ -365,7 +365,7 @@
           document.querySelector(query).style.left = "auto";
           document.querySelector(query).style.bottom = top + "px";
           document.querySelector(query).style.right = left + "px";
-          document.querySelector(query).style.zIndex = "index++";
+          document.querySelector(query).style.zIndex = index++;
           if($(query).children()[0]){
             if(src){
               $(query).children()[0].src = src;
@@ -389,6 +389,7 @@
         socket.on('flipShowCard', function(id, src){
           var query = '#o' + id;
           $(query).children()[0].src = src;
+          $(query)[0].style.zIndex = index++;
         });
 
         socket.on('given opponent', function(JSON){
@@ -565,58 +566,58 @@
         //called on every card in the deck zone when 'search' is pressed
         var searchDeck = function(){
           length++;
-                $(this).on('mouseover', _.debounce(function(event){
-                  if($(this).children()[0].src == "http://67.160.162.82:89/card_images/frontSrc2.jpg"){//if back of card, show front
-                    $(this).children()[0].src = "http://67.160.162.82:89/card_images/" + $(this).children().data("cardName") + ".jpg";
-                  }
-                  $(this).attr('tabindex', 0);
-                  $(this).focus();
-                  var src = $(this).children()[0].src;
-                  $('.mag').attr("src", src);
+          $(this).on('mouseover', _.debounce(function(event){
+            if($(this).children()[0].src == "http://67.160.162.82:89/card_images/frontSrc2.jpg"){//if back of card, show front
+              $(this).children()[0].src = "http://67.160.162.82:89/card_images/" + $(this).children().data("cardName") + ".jpg";
+            }
+            $(this).attr('tabindex', 0);
+            $(this).focus();
+            var src = $(this).children()[0].src;
+            $('.mag').attr("src", src);
 
-                  $('body').one('keydown', function(event){
-                    var focCard = document.activeElement;
-                    var div = helpTriggerMouse(focCard);
-                    switch(event.keyCode){
-                      case 37://left
-                        if(rightCounter > 0){
-                          lowestCard.pop().style.zIndex = ++index;
-                          rightCounter--;
-                        }
-                        break;
-                      case 39://right                   
-                        if(rightCounter < length - 1){
-                          rightCounter++;
-                          lowestCard.push(focCard);
-                          focCard.style.zIndex = --negIndex; 
-                        }
-                        break;
-                      case 40://down
-                        cardArray[rightCounter] = focCard;     
-                        choiceArray[rightCounter] += 1;
-                        switch(choiceArray[rightCounter]%4){
-                          case 0:
-                            focCard.children[1].innerHTML = "";
-                            break;
-                          case 1:
-                            focCard.children[1].innerHTML = "Field";
-                            break;
-                          case 2:
-                            focCard.children[1].innerHTML = "Hand";
-                            break;
-                          case 3:
-                            focCard.children[1].innerHTML = "Bottom";                         
-                            break;
-                          default:
-                        }
-                        $('body').off('keydown');
-                        event.preventDefault();   
-                        break;
-                      default:
-                    }
-                    setTimeout(function(){div.remove();}, 700);
-                  });
-                },500,true));
+            $('body').one('keydown', function(event){
+              var focCard = document.activeElement;
+              var div = helpTriggerMouse(focCard);
+              switch(event.keyCode){
+                case 37://left
+                  if(rightCounter > 0){
+                    lowestCard.pop().style.zIndex = ++index;
+                    rightCounter--;
+                  }
+                  break;
+                case 39://right                   
+                  if(rightCounter < length - 1){
+                    rightCounter++;
+                    lowestCard.push(focCard);
+                    focCard.style.zIndex = --negIndex; 
+                  }
+                  break;
+                case 40://down
+                  cardArray[rightCounter] = focCard;     
+                  choiceArray[rightCounter] += 1;
+                  switch(choiceArray[rightCounter]%4){
+                    case 0:
+                      focCard.children[1].innerHTML = "";
+                      break;
+                    case 1:
+                      focCard.children[1].innerHTML = "Field";
+                      break;
+                    case 2:
+                      focCard.children[1].innerHTML = "Hand";
+                      break;
+                    case 3:
+                      focCard.children[1].innerHTML = "Bottom";                         
+                      break;
+                    default:
+                  }
+                  $('body').off('keydown');
+                  event.preventDefault();   
+                  break;
+                default:
+              }
+              setTimeout(function(){div.remove();}, 700);
+            });
+          },500,true));
         }
       });//end window object load event handler
 
