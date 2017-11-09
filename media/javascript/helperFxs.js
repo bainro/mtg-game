@@ -32,88 +32,88 @@ function getTimeStamp(){
 
 function restoreHandlers(){
 
-			$('.myCard').on('mousedown', function(event){
-              if(event.which == 3){
-                if(!event.ctrlKey){ 
-                  if($(this).children()[0].src == "http://67.160.162.82:89/card_images/frontSrc2.jpg"){
-                    $(this).children()[0].src = "http://67.160.162.82:89/card_images/" + $(this).children().data("cardName") + ".jpg";
-                  }
-                  else{
-                    $(this).children()[0].src = "http://67.160.162.82:89/card_images/frontSrc2.jpg";
-                  }
-                  var card = $(this).position();
-                  if(!((card.left >= 76 && card.left <= 345 && card.top >= 368 && card.top <= 412) || (card.left >= -12 && card.left <= 174 && card.top <= 220 && card.top >= -12))){
-                    var className = this.id.slice(1);
-                    socket.emit('flipShowCard', className, $(this).children()[0].src);
-                  }
-                  event.preventDefault();
-                }
-                else{
-                  if(event.ctrlKey){
-                    if($(this)[0].style.transform == "rotate(90deg)"){
-                      $(this).css("transform","rotate(0deg)");
-                      var tapTog = true;
-                    }
-                    else{
-                      $(this).css("transform","rotate(90deg)");
-                      var tapTog = false;
-                    }
-                    var className = this.id.slice(1);
-                    socket.emit('tapped', className, tapTog);
-                  }
-                }
-              }
-            });
+	$('.myCard').on('mousedown', function(event){
+    if(event.which == 3){
+      if(!event.ctrlKey){ 
+        if($(this).children()[0].src == "http://67.160.162.82:89/card_images/frontSrc2.jpg"){
+          $(this).children()[0].src = "http://67.160.162.82:89/card_images/" + $(this).children().data("cardName") + ".jpg";
+        }
+        else{
+          $(this).children()[0].src = "http://67.160.162.82:89/card_images/frontSrc2.jpg";
+        }
+        var card = $(this).position();
+        if(!((card.left >= 76 && card.left <= 345 && card.top >= 368 && card.top <= 412) || (card.left >= -12 && card.left <= 174 && card.top <= 220 && card.top >= -12))){
+          var className = this.id.slice(1);
+          socket.emit('flipShowCard', className, $(this).children()[0].src);
+        }
+        event.preventDefault();
+      }
+      else{
+        if(event.ctrlKey){
+          if($(this)[0].style.transform == "rotate(90deg)"){
+            $(this).css("transform","rotate(0deg)");
+            var tapTog = true;
+          }
+          else{
+            $(this).css("transform","rotate(90deg)");
+            var tapTog = false;
+          }
+          var className = this.id.slice(1);
+          socket.emit('tapped', className, tapTog);
+        }
+      }
+    }
+  });
 
-            $('.myCard').mouseover(function(){
-              if($(this).children()[0].src == 'http://67.160.162.82:89/card_images/frontSrc2.jpg'){
-                $('.mag').attr("src", "http://67.160.162.82:89/card_images/frontSrc2.jpg");
-              }
-              else{
-                $('.mag').attr("src", "http://67.160.162.82:89/card_images/" + $(this).children().data("cardName") + ".jpg");
-              }
-            });
+  $('.myCard').mouseover(function(){
+    if($(this).children()[0].src == 'http://67.160.162.82:89/card_images/frontSrc2.jpg'){
+        $('.mag').attr("src", "http://67.160.162.82:89/card_images/frontSrc2.jpg");
+    }
+    else{
+      $('.mag').attr("src", "http://67.160.162.82:89/card_images/" + $(this).children().data("cardName") + ".jpg");
+    }
+  });
 
-$(".myCard").draggable({
-              stop: function(){
-                var card = $(this).position();
-                var src = undefined;
+  $(".myCard").draggable({
+    stop: function(){
+      var card = $(this).position();
+      var src = undefined;
 
-                if((startCardPos.left >= -16 && startCardPos.left <= 34 && startCardPos.top >= 379 && startCardPos.top <= 427) && !(card.left >= -16 && card.left <= 34 && card.top >= 379 && card.top <= 427)){
-                  action = "Drew Card From Deck at ";
-                  timeStamp = getTimeStamp();
-                  socket.emit('log', timeStamp, action);
-                  logHandler(timeStamp, action);
-                }
-                if((startCardPos.left <= 24 && startCardPos.left >= -24 && startCardPos.top <= 344 && startCardPos.top >= 296) && !(card.left <= 24 && card.left >= -24 && card.top <= 344 && card.top >= 296)){
-                  var cardName = $(this).children().data('cardName');
-                  action = cardName + " Retrieved From Grave at "; 
-                  timeStamp = getTimeStamp();
-                  socket.emit('log', timeStamp, action);
-                  logHandler(timeStamp, action);
-                }
-                $(this).css("zIndex",index++);
-                if(!((card.left >= 70 && card.left <= 345 && card.top >= 356 && card.top <= 432) || (card.left >= -12 && card.left <= 174 && card.top <= 220 && card.top >= -12) || (card.left >= -16 && card.left <= 34 && card.top >= 379 && card.top <= 427))){
-                  if($(this).children()[0].src == "http://67.160.162.82:89/card_images/frontSrc2.jpg"){
-                    $(this).children()[0].src = "http://67.160.162.82:89/card_images/" + $(this).children().data("cardName") + ".jpg";
-                  }
-                  var className = this.id.slice(1);
-                  var src = "http://67.160.162.82:89/card_images/" + $(this).children().data('cardName') + ".jpg";
-                  socket.emit('flipShowCard', className, src);
-                }
-                //debounce (trailing) this too
-                if(card.left < 24 && card.left > -24 && card.top < 344 && card.top > 296){
-                  var timeStamp = getTimeStamp();
-                  var cardName = $(this).children().data('cardName');
-                  var action = cardName + ' Discarded at '
-                  socket.emit('log', timeStamp, action);
-                  logHandler(timeStamp, action);
-                }
-                var id = this.id.slice(1);
-                socket.emit('dragged', card.left, card.top, id, src);
-              },
-              start: function(){
-                startCardPos = $(this).position();
-              }
-            });
+      if((startCardPos.left >= -16 && startCardPos.left <= 34 && startCardPos.top >= 379 && startCardPos.top <= 427) && !(card.left >= -16 && card.left <= 34 && card.top >= 379 && card.top <= 427)){
+        action = "Drew Card From Deck at ";
+        timeStamp = getTimeStamp();
+        socket.emit('log', timeStamp, action);
+        logHandler(timeStamp, action);
+      }
+      if((startCardPos.left <= 24 && startCardPos.left >= -24 && startCardPos.top <= 344 && startCardPos.top >= 296) && !(card.left <= 24 && card.left >= -24 && card.top <= 344 && card.top >= 296)){
+        var cardName = $(this).children().data('cardName');
+        action = cardName + " Retrieved From Grave at "; 
+        timeStamp = getTimeStamp();
+        socket.emit('log', timeStamp, action);
+        logHandler(timeStamp, action);
+      }
+      $(this).css("zIndex",index++);
+      if(!((card.left >= 70 && card.left <= 345 && card.top >= 356 && card.top <= 432) || (card.left >= -12 && card.left <= 174 && card.top <= 220 && card.top >= -12) || (card.left >= -16 && card.left <= 34 && card.top >= 379 && card.top <= 427))){
+        if($(this).children()[0].src == "http://67.160.162.82:89/card_images/frontSrc2.jpg"){
+          $(this).children()[0].src = "http://67.160.162.82:89/card_images/" + $(this).children().data("cardName") + ".jpg";
+        }
+        var className = this.id.slice(1);
+        var src = "http://67.160.162.82:89/card_images/" + $(this).children().data('cardName') + ".jpg";
+        socket.emit('flipShowCard', className, src);
+      }
+      //debounce (trailing) this too
+      if(card.left < 24 && card.left > -24 && card.top < 344 && card.top > 296){
+        var timeStamp = getTimeStamp();
+        var cardName = $(this).children().data('cardName');
+        var action = cardName + ' Discarded at '
+        socket.emit('log', timeStamp, action);
+        logHandler(timeStamp, action);
+      }
+      var id = this.id.slice(1);
+      socket.emit('dragged', card.left, card.top, id, src);
+    },
+    start: function(){
+      startCardPos = $(this).position();
+    }
+  });
 }
