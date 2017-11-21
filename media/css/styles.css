@@ -40,9 +40,10 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #852f00;
-  background-image: url("/images/dark_wood.png");
-  background-repeat: repeat;
+  background-color: #F5F4F4;
+  background-image: url("/images/dark_wood.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
   font-family: calibri;
   z-index: -10000;
   -webkit-touch-callout: none;
@@ -127,7 +128,7 @@ body {
     bottom: 140px;
     right: 84px; }
   #chooseDeck select {
-    border-radius: 40px;
+    border-radius: 5px;
     background-color: grey;
     color: black;
     height: 21px;
@@ -263,10 +264,34 @@ img {
 
 #help {
   position: absolute;
-  left: 80px;
-  bottom: 8px;
-  background-color: grey;
+  left: 83px;
+  bottom: 6px;
+  width: 53px;
   border-radius: 10px; }
+
+#apod {
+  position: absolute;
+  left: 68px;
+  bottom: 6px;
+  border-radius: 10px;
+  display: none; }
+
+#background-desc {
+  position: absolute;
+  font-size: .85em;
+  text-align: justify;
+  color: white;
+  display: none;
+  left: 9px;
+  top: 128px;
+  width: 205px;
+  height: 117px;
+  border-radius: 5px;
+  overflow-y: scroll;
+  overflow-x: hidden; }
+  #background-desc a {
+    text-decoration: none;
+    color: pink; }
 
 #token {
   position: absolute;

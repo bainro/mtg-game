@@ -28,13 +28,21 @@
               <option value='chandra'>Burn/Chandra Deck</option>
               <option value='sliver_aggro'>Aggro Sliver Deck</option> 
               <option value='sliver_overlord'>Stacie's Sliver Deck</option>
+              <option value='demon_sacrifice'>Demon Sacrifice Deck</option>
+              <option value='eldrazi_nightmare'>Eldrazi Nightmare Deck</option>
+              <option value='discard'>Discard Death Deck</option>              
             </select>
-            <input type='submit'>
+            <input type='submit' value="submit">
           </form>
           <input id='shuffle' type='button' value="shuffle">
           <input id='search' type='button' value="search">
           <input id='token' type='button' value="token">
-          <input id='help' type='button' value="RULES">
+          <input id='help' type='button' value="rules">
+          <input id='apod' type='button' value="background">
+          <p id="background-desc">The Westerlund 2 cluster consists of roughly 3,000 stars inside a vibrant stellar breeding ground known as Gum 29, located 20,000 light-years away in the constellation Carina. The comparatively young, 2-million-year-old star cluster contains some of our galaxy's hottest, brightest, and most massive stars. The largest stars are unleashing a torrent of ultraviolet light and hurricane-force winds that etch away the enveloping hydrogen gas cloud. This creates a fantasy celestial landscape of pillars, ridges, and valleys.<br>  
+            <a href="https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/NASA_Unveils_Celestial_Fireworks_as_Official_Hubble_25th_Anniversary_Image.jpg/1024px-NASA_Unveils_Celestial_Fireworks_as_Official_Hubble_25th_Anniversary_Image.jpg" target="_blank">View Full Image</a>
+          
+          </p>
           <div id="myHealth">
             20
           </div>
@@ -42,7 +50,7 @@
             20
           </div>
         </div>
-        <div id="chat"">
+        <div id="chat">
           <ul id="chatroom">
             <!--CHATROOM-->
           </ul>
@@ -116,6 +124,16 @@
           window.open('http://rkbain.com/rules.html');
         });
 
+        $('#apod').on('click', function(event){
+          socket.emit('background');
+        });
+
+        socket.on('background', function(url, desc){
+          //console.log(url);
+          $('body').css('background-image', "url(" + url + ")");
+          $('#background-desc').html(desc + "<br><a href=" + url + " target='_blank'>View Full Image</a>");
+        });
+
         $('#myHealth').on('mousedown', function(event){
           if(event.which == 1){
             this.innerHTML = --myHealth;
@@ -152,7 +170,7 @@
         $('#chooseDeck').on('submit', function(event){
           event.preventDefault();
           var deckChoice = $('.deckOptions')[0].value;
-          $('#chooseDeck')[0].remove();
+          $('#chooseDeck').eq(0).remove();
           socket.emit('deck chosen', socket.id, deckChoice);
         });
 
@@ -161,7 +179,7 @@
           var msg = $('#text')[0].value;
           $('#text')[0].value = "";
           socket.emit('message', msg);
-          var li = document.createElement('li'); //begin
+          var li = document.createElement('li'); 
           li.style.color = "#F02828";
           li.style.textAlign = "right";  
           li.style.paddingRight = ".5em";      
@@ -192,7 +210,7 @@
         });           
 
         socket.on("message", function(msg){
-          var li = document.createElement('li'); //begin
+          var li = document.createElement('li'); 
           li.style.color = "#2C83E2";
           li.style.textAlign = "left";  
           li.style.paddingLeft = ".3em";      
@@ -406,17 +424,19 @@
                 $('.mag').attr("src", $(this).children()[0].src);
 
           });
-          $('#shuffle, #search, #myHealth, #theirHealth, #token').each(function(_, element){element.style.display="initial"});
+          $('#shuffle, #search, #myHealth, #theirHealth, #token, #apod, #background-desc').each(function(_, element){element.style.display="inline"});
+          $('#help').css("bottom", "192px");
+          $('#help').css("left", "15px");
         });
 
           //begin 'given deck' event handler
-          socket.on('given deck', function(JSON){
+          socket.on('given deck', function(deck){
             
             var counterText = "2/3";
             var moreText = "Flying 3 Charge Counters";
 
-            for(myCardCount; myCardCount < JSON.length; myCardCount++){
-              createCard(JSON[myCardCount], true, myCardCount);
+            for(myCardCount; myCardCount < deck.length; myCardCount++){
+              createCard(deck[myCardCount], true, myCardCount);
             }
                                                                 
             $(".myCard").draggable({
@@ -466,7 +486,7 @@
               if(!event.ctrlKey){
                 counterText = window.prompt("Power/Toughness:", counterText);
                 moreText = window.prompt("Other Text to add to Card", moreText);
-                this.children[1].innerHTML = counterText;
+                $(this).children().eq(1).text(counterText);
                 this.title = moreText;
                 var id = this.id.slice(1);
                 socket.emit('addCounter', counterText, moreText, id);
@@ -489,7 +509,7 @@
             socket.on('addCounter', function(counterText, moreText, id){
               var query = '#o' + id;
               var card = $(query);
-              card.children()[1].innerHTML = counterText;
+              card.children().eq(1).text(counterText);
               card[0].title = moreText;
             });
 
@@ -542,10 +562,9 @@
         function createCard(card, whose, inc){
           var span = document.createElement('span');
           var img = document.createElement('img');         
-          //img.setAttribute('src', '/card_images/frontSrc2.jpg');
-          span.append(img);
+          span.appendChild(img);
           var indicator = document.createElement("p");
-          span.append(indicator);
+          span.appendChild(indicator);
           if(whose){
             span.className += (' myCard card');
             span.id = ('m' + inc);
@@ -564,7 +583,7 @@
         function helpTriggerMouse(focCard){
           div = elt("div");
           div.className = "triggered";                                 
-          focCard.append(div);
+          focCard.appendChild(div);
           return div;
         }
 
@@ -620,7 +639,7 @@
                   break;
                 default:
               }
-              setTimeout(function(){div.remove();}, 700);
+              setTimeout(function(){div.parentNode.removeChild(div);}, 700);
             });
           },500,true));
         }
@@ -633,7 +652,7 @@
       }
 
       function showSpeak(){
-        $('#speak')[0].style.display = "initial";
+        $('#speak')[0].style.display = "inline";
       }
 
       function randomColor() {

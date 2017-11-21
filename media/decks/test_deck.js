@@ -1,4 +1,4 @@
-[	
+var deck = [	
 	{
 	"name":"dark_prophecy"
 	},
@@ -180,3 +180,5 @@
 	"name":"tainted_strike"
 	}
 ]
+
+module.exports = deck;

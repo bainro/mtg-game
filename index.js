@@ -1,6 +1,5 @@
 //require and instantiate dependencies
 var express = require('express');
-var cors = require('cors')
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
@@ -14,7 +13,6 @@ var $ = require('jQuery')(window);
 var clients = [];
 var count = 0;
 
-app.use(cors());						//Used to make cross-domain scripting possible (need to apply filter in the future)
 app.use(express.static('media'));		//Get requests for static files start in the 'media' directory of mtg folder
 
 app.get('/', function (req, res, next) {
@@ -37,6 +35,18 @@ io.on('connection', function(socket){
   			sendDecks();
   		}
   	}); 
+
+    socket.on('background', function(){ 
+      var msecToday = new Date();
+      var msecRandDate = new Date (msecToday - Math.floor((Math.random() * 3e11)));
+      var randMonth = String(msecRandDate.getUTCMonth() + 1);
+      var randDate = msecRandDate.getUTCFullYear() + "-" + randMonth + "-" + msecRandDate.getUTCDate();
+      $.get("https://api.nasa.gov/planetary/apod?api_key=1HpGxq0MOK7fwnhKrx0UKV6h06pgAqrGoyHuXIbz&date=" + randDate, function(data){
+        var url = data.url;
+        var desc = data.explanation;
+        socket.emit('background', url, desc);
+      });
+    });
 
     socket.on('log', function(timeStamp, action){
       socket.broadcast.emit('log', timeStamp, action);
@@ -90,41 +100,33 @@ http.listen(89, function(){
 
 function sendDecks(){
 
-  	var deck1 = [];
-  	var deck2 = [];
-  	var choice1 = clients[0].deck;
-  	var choice2 = clients[1].deck;
-  	var socket1 = clients[0].id;
-  	var socket2 = clients[1].id;
+  var deck1 = [];
+  var deck2 = [];
+  var choice1 = clients[0].deck;
+  var choice2 = clients[1].deck;
+  var socket1 = clients[0].id;
+  var socket2 = clients[1].id;
 
-  	$.getJSON("http://67.160.162.82:89/decks/" + choice1 + ".json", function(response){
-       for(var inc = 0; inc < response.length; inc++){
-       		deck1.push(response[inc]);
-       }
-       shuffle(deck1);
-       io.to(socket1).emit('given deck', deck1);
-       var oCards2 = [];
-       for(var inc = 0; inc < deck1.length; inc++){
-       		deck1[inc].name="";
-       		deck1[inc].frontSrc="frontSrc";
-       		oCards2.push(deck1[inc]);
-       }
-       io.to(socket2).emit('given opponent', oCards2);
- 	});
+  var deckTemp = require("./media/decks/" + choice1 + ".js"); //module handle is live or something? Can't be passed thru socket...
+  var deck = deckTemp;
+  shuffle(deck);
+  io.to(socket1).emit('given deck', deck);
+  var oCards2 = [];
+  for(var inc = 0; inc < deck.length; inc++){
+    oCards2.push({"name":"","frontSrc":"frontSrc"});
+  }
+  io.to(socket2).emit('given opponent', oCards2);
 
- 	$.getJSON("http://67.160.162.82:89/decks/" + choice2 + ".json", function(response){
-       for(var inc = 0; inc < response.length; inc++){
-       		deck2.push(response[inc]);
-       }
-       shuffle(deck2);
-       io.to(socket2).emit('given deck', deck2);
-       var oCards1 = [];
-       for(var inc = 0; inc < deck2.length; inc++){
-       		deck2[inc].name="";
-       		deck2[inc].frontSrc="frontSrc";
-       		oCards1.push(deck2[inc]);
-       }
-       io.to(socket1).emit('given opponent', oCards1);
- 	});
+  if(choice1 != choice2){
+ 	  deckTemp = require("./media/decks/" + choice2 + ".js");
+  }
+  deck = deckTemp;
+  shuffle(deck);
+  io.to(socket2).emit('given deck', deck);
+  var oCards1 = [];
+  for(var inc = 0; inc < deck.length; inc++){
+    oCards1.push({"name":"","frontSrc":"frontSrc"});
+  }
+  io.to(socket1).emit('given opponent', oCards1);
 
 };
