@@ -1,0 +1,37 @@
+{
+  "name": "mtg",
+  "version": "1.1.5",
+  "description": "Magic The Gathering in-browser Video Game",
+  "main": "index.html",
+  "dependencies": {
+    "cors": "^2.8.4",
+    "dotenv": "^4.0.0",
+    "express": "^4.16.2",
+    "jquery": "^3.2.1",
+    "jsdom": "^11.3.0",
+    "mysql": "^2.15.0",
+    "shuffle-array": "^1.0.1",
+    "socket.io": "^2.0.4",
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bainro/mtg-game.git"
+  },
+  "keywords": [
+    "express",
+    "socket.io",
+    "jquery",
+    "game"
+  ],
+  "author": "Robert Bain",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bainro/mtg-game/issues"
+  },
+  "homepage": "https://github.com/bainro/mtg-game#readme"
+}

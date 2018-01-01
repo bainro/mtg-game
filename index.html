@@ -23,14 +23,7 @@
         <div id="tools">
           <form id="chooseDeck"> 
             <select class="deckOptions">    
-              <option value='blue_black_control_1'>Blue/Black Control Deck</option>  
-              <option value='big_green'>Big Green Deck</option> 
-              <option value='chandra'>Burn/Chandra Deck</option>
-              <option value='sliver_aggro'>Aggro Sliver Deck</option> 
-              <option value='sliver_overlord'>Stacie's Sliver Deck</option>
-              <option value='demon_sacrifice'>Demon Sacrifice Deck</option>
-              <option value='eldrazi_nightmare'>Eldrazi Nightmare Deck</option>
-              <option value='discard'>Discard Death Deck</option>              
+              <!-- Populated via JS -->             
             </select>
             <input type='submit' value="submit">
           </form>
@@ -92,8 +85,8 @@
       var powerTough = "1/1";
       var tokenText = "White Soldier Vigilance";
       var startCardPos = null;
-      var socket = io();
-
+      var socket = io('/game');
+      var fullUrl = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
       
       $(function(){
 
@@ -117,6 +110,16 @@
             $('#text')[0].value = "";
             $('#chatroom')[0].scrollTop = $('#chatroom')[0].scrollHeight - $('#chatroom')[0].clientHeight; 
             return false;
+          }
+        });
+
+        socket.emit('get deck options');
+
+        socket.on('give deck options', function(options){
+          var tempItem;
+          for(var i = 0; i < options.length; i++){
+            tempItem = $("<option>", {class: "deck-select", text: options[i].name});
+            $('.deckOptions').append(tempItem);
           }
         });
 
@@ -224,9 +227,9 @@
             var card = $(this).position();
             if(card.left >= -19 && card.left <= 30 && card.top >= 379 && card.top <= 429){
               $(this).css("zIndex", index + Math.round(Math.random()*120));
-              $(this).children()[0].src = 'http://67.160.162.82:89/card_images/frontSrc2.jpg';
+              $(this).children()[0].src = '/card_images/frontSrc2.jpg';
               var className = this.id.slice(1);
-              socket.emit('flipShowCard', className, "http://67.160.162.82:89/card_images/frontSrc.jpg");
+              socket.emit('flipShowCard', className, "/card_images/frontSrc.jpg");
               $(this)[0].style.top = "412px"; 
               $(this)[0].style.left = "0px";  
               if($(this)[0].style.transform == "rotate(90deg)"){
@@ -352,7 +355,7 @@
                   x.style.top = 138 + "px";
                   x.style.left = 240 + "px";
                   var className = x.id.slice(1);
-                  var src = "http://67.160.162.82:89/card_images/" + $(x).children().data('cardName') +  ".jpg";
+                  var src = "/card_images/" + $(x).children().data("set_id") + "/" + $(x).children().data("card_id") + ".jpg";
                   socket.emit('flipShowCard', className, src);
                   var card = $(x).position();
                   socket.emit('dragged', card.left, card.top, className, src);
@@ -374,7 +377,7 @@
                   break;
               }
             });
-            restoreHandlers();
+            restoreHandlers(fullUrl);
             for(var inc = 0; inc < 120; inc++){
               choiceArray[inc] = 0;
             }
@@ -459,11 +462,11 @@
                 }
                 $(this).css("zIndex",index++);
                 if(!((card.left >= 70 && card.left <= 345 && card.top >= 356 && card.top <= 432) || (card.left >= -12 && card.left <= 174 && card.top <= 220 && card.top >= -12) || (card.left >= -16 && card.left <= 34 && card.top >= 379 && card.top <= 427))){
-                  if($(this).children()[0].src == "http://67.160.162.82:89/card_images/frontSrc2.jpg"){
-                    $(this).children()[0].src = "http://67.160.162.82:89/card_images/" + $(this).children().data("cardName") + ".jpg";
+                  if($(this).children()[0].src == fullUrl + "/card_images/frontSrc2.jpg"){
+                    $(this).children()[0].src = "/card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg";
                   }
                   var className = this.id.slice(1);
-                  var src = "http://67.160.162.82:89/card_images/" + $(this).children().data('cardName') + ".jpg";
+                  var src = "/card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg";
                   socket.emit('flipShowCard', className, src);
                 }
                 //debounce (trailing) this too
@@ -493,7 +496,7 @@
               }
               else{
                 this.style.zIndex = --negIndex;
-                $(this).children()[0].src = "http://67.160.162.82:89/card_images/frontSrc2.jpg"
+                $(this).children()[0].src = "/card_images/frontSrc2.jpg"
                 this.style.top = 412 + "px";
                 this.style.left = 0;
                 var card = $(this).position();
@@ -516,11 +519,11 @@
             $('.myCard').on('mousedown', function(event){
               if(event.which == 3){
                 if(!event.ctrlKey){ 
-                  if($(this).children()[0].src == "http://67.160.162.82:89/card_images/frontSrc2.jpg"){
-                    $(this).children()[0].src = "http://67.160.162.82:89/card_images/" + $(this).children().data("cardName") + ".jpg";
+                  if($(this).children()[0].src == fullUrl + "/card_images/frontSrc2.jpg"){
+                    $(this).children()[0].src = "/card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg";
                   }
                   else{
-                    $(this).children()[0].src = "http://67.160.162.82:89/card_images/frontSrc2.jpg";
+                    $(this).children()[0].src = "/card_images/frontSrc2.jpg";
                   }
                   var card = $(this).position();
                   if(!((card.left >= 76 && card.left <= 345 && card.top >= 368 && card.top <= 412) || (card.left >= -12 && card.left <= 174 && card.top <= 220 && card.top >= -12))){
@@ -547,11 +550,11 @@
             });
 
             $('.myCard').mouseover(function(){
-              if($(this).children()[0].src == 'http://67.160.162.82:89/card_images/frontSrc2.jpg'){
-                $('.mag').attr("src", "http://67.160.162.82:89/card_images/frontSrc2.jpg");
+              if($(this).children()[0].src == fullUrl + '/card_images/frontSrc2.jpg'){
+                $('.mag').attr("src", "/card_images/frontSrc2.jpg");
               }
               else{
-                $('.mag').attr("src", "http://67.160.162.82:89/card_images/" + $(this).children().data("cardName") + ".jpg");
+                $('.mag').attr("src", "/card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg");
               }
             });
 
@@ -571,11 +574,15 @@
             span.style.zIndex = 60;
             img.setAttribute('src', '/card_images/frontSrc2.jpg');
             $(img).data('cardName', card.name);
+            $(img).data('set_id', card.set_id);
+            $(img).data('card_id', card.card_id);
           }
           else{
             span.className += (' theirCard card');
             span.id = ('o' + inc);
             img.setAttribute('src', '/card_images/frontSrc.jpg');
+            $(img).data('set_id', card.set_id);
+            $(img).data('card_id', card.card_id);
           }
           $('.board').append(span);
         }
@@ -591,8 +598,8 @@
         var searchDeck = function(){
           length++;
           $(this).on('mouseover', _.debounce(function(event){
-            if($(this).children()[0].src == "http://67.160.162.82:89/card_images/frontSrc2.jpg"){//if back of card, show front
-              $(this).children()[0].src = "http://67.160.162.82:89/card_images/" + $(this).children().data("cardName") + ".jpg";
+            if($(this).children()[0].src == fullUrl + "/card_images/frontSrc2.jpg"){//if back of card, show front
+              $(this).children()[0].src = "/card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg";
             }
             $(this).attr('tabindex', 0);
             $(this).focus();

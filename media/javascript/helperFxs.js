@@ -30,16 +30,16 @@ function getTimeStamp(){
 
 //All the event handlers in a single function
 
-function restoreHandlers(){
+function restoreHandlers(fullURL){
 
 	$('.myCard').on('mousedown', function(event){
     if(event.which == 3){
       if(!event.ctrlKey){ 
-        if($(this).children()[0].src == "http://67.160.162.82:89/card_images/frontSrc2.jpg"){
-          $(this).children()[0].src = "http://67.160.162.82:89/card_images/" + $(this).children().data("cardName") + ".jpg";
+        if($(this).children()[0].src == fullURL + "/card_images/frontSrc2.jpg"){
+          $(this).children()[0].src = "/card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg";
         }
         else{
-          $(this).children()[0].src = "http://67.160.162.82:89/card_images/frontSrc2.jpg";
+          $(this).children()[0].src = "/card_images/frontSrc2.jpg";
         }
         var card = $(this).position();
         if(!((card.left >= 76 && card.left <= 345 && card.top >= 368 && card.top <= 412) || (card.left >= -12 && card.left <= 174 && card.top <= 220 && card.top >= -12))){
@@ -66,11 +66,11 @@ function restoreHandlers(){
   });
 
   $('.myCard').mouseover(function(){
-    if($(this).children()[0].src == 'http://67.160.162.82:89/card_images/frontSrc2.jpg'){
-        $('.mag').attr("src", "http://67.160.162.82:89/card_images/frontSrc2.jpg");
+    if($(this).children()[0].src == fullURL + '/card_images/frontSrc2.jpg'){
+        $('.mag').attr("src", "/card_images/frontSrc2.jpg");
     }
     else{
-      $('.mag').attr("src", "http://67.160.162.82:89/card_images/" + $(this).children().data("cardName") + ".jpg");
+      $('.mag').attr("src", "/card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg");
     }
   });
 
@@ -94,11 +94,11 @@ function restoreHandlers(){
       }
       $(this).css("zIndex",index++);
       if(!((card.left >= 70 && card.left <= 345 && card.top >= 356 && card.top <= 432) || (card.left >= -12 && card.left <= 174 && card.top <= 220 && card.top >= -12) || (card.left >= -16 && card.left <= 34 && card.top >= 379 && card.top <= 427))){
-        if($(this).children()[0].src == "http://67.160.162.82:89/card_images/frontSrc2.jpg"){
-          $(this).children()[0].src = "http://67.160.162.82:89/card_images/" + $(this).children().data("cardName") + ".jpg";
+        if($(this).children()[0].src == fullURL + "/card_images/frontSrc2.jpg"){
+          $(this).children()[0].src = "/card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg";
         }
         var className = this.id.slice(1);
-        var src = "http://67.160.162.82:89/card_images/" + $(this).children().data('cardName') + ".jpg";
+        var src = "/card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg";
         socket.emit('flipShowCard', className, src);
       }
       //debounce (trailing) this too

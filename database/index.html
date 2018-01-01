@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+	<head>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>MTG Deck Builder</title>
+	<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' integrity='sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u' crossorigin='anonymous'>
+	<link rel="stylesheet" href="./db_media/css/styles.css">
+	<link rel="apple-touch-icon" sizes="180x180" href="./db_media/favicons/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="./db_media/favicons/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="./db_media/favicons/favicon-16x16.png">
+	<link rel="manifest" href="./db_media/favicons/manifest.json">
+	<link rel="mask-icon" href="./db_media/favicons/safari-pinned-tab.svg" color="#5bbad5">
+	<meta name="theme-color" content="#ffffff">
+
+	</head>
+	<body>
+
+		<div class="row">
+			<div class="col-xs-12 col-sm-6 col-md-5" id="query-div" style="border-right:solid 2px black">
+				<form onsubmit="cardQuery(event)">
+					<label for="card-name" id="card-name-label">Card Name: </label>
+					<span id="exact-span">
+						<label for="exact-box">Match Name Exactly: </label>
+						<input type="checkbox" id="exact-box">
+					</span>
+					<input type="text" name="cardName" value="Black Lotus" id="card-name" class="form-control">
+					<br>
+					<input type="submit" value="Search" class="btn btn-default">
+					<input type="button" value="Random" class="btn btn-default" id="random">
+					<input class="btn btn-primary" id="add-to-deck" type="button" value="Add To Deck">
+				</form>
+				<br>
+				<div id="card-div">
+					<img src="./card_images/frontSrc3.jpg" class="card-img">
+				</div>
+			</div>
+			<div class="col-xs-12 col-sm-6 col-md-7" id="builder-div">
+				<select id="deck-options" class="form-control">    
+					<!-- Loaded in via JS -->
+				</select>
+				<input class="btn btn-default" id="choose-deck" type="button" value="Load">
+				<input class="btn btn-default" id="rename-deck" type="button" value="Rename" data-toggle="modal" data-target="#renameModal">
+				<input class="btn btn-default" id="new-deck" type="button" value="New" data-toggle="modal" data-target="#newModal">
+				<input class="btn btn-default" id="save-deck" type="button" value="Save" data-toggle="modal" data-target="#saveModal">
+				<input class="btn btn-danger" id="delete-deck" type="button" value="Delete" data-toggle="modal" data-target="#delModal">
+				<br><br>
+				<ul id="cards-in-deck">
+					<!-- Loaded in via JS -->
+				</ul>
+			</div>
+		</div>
+
+		<!-- Begin Modals -->
+		<div class="modal fade" id="delModal" tabindex="-1" role="dialog" aria-labelledby="delModalLabel">
+  			<div class="modal-dialog" role="document">
+    			<div class="modal-content">
+      				<div class="modal-header">
+        				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        				<h4 class="modal-title" id="delModalLabel">Delete Confirmation</h4>
+      				</div>
+      				<div class="modal-body">
+        				You are attempting to delete the deck: <b id="deck-del-name">NOTHING SELECTED</b>. This action will be permanent.
+      				</div>
+      				<div class="modal-footer">
+        				<button type="button" class="btn btn-info" data-dismiss="modal">Cancel</button>
+        				<button type="button" class="btn btn-danger" id="confirm-del" data-dismiss="modal" disabled="disabled">Delete Deck</button>
+      				</div>
+    			</div>
+  			</div>
+		</div>
+
+		<div class="modal fade" id="newModal" tabindex="-1" role="dialog" aria-labelledby="newModalLabel">
+  			<div class="modal-dialog" role="document">
+    			<div class="modal-content">
+      				<div class="modal-header">
+        				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        				<h4 class="modal-title" id="newModalLabel">New Deck Confirmation</h4>
+      				</div>
+      				<div class="modal-body">
+        				You are attempting to create a new deck.
+        				<br><br>
+        				<input type="text" value="Enter Deck Name" id="new-input">
+        				<br><br>
+        				<label for="keep-cards" id="keep-cards-label">Keep Current Card List:</label>
+        				<input type="checkbox" id="keep-cards">
+      				</div>
+      				<div class="modal-footer">
+        				<button type="button" class="btn btn-info" data-dismiss="modal">Cancel</button>
+        				<button type="button" class="btn btn-success" id="confirm-new" data-dismiss="modal">Create New Deck</button>
+      				</div>
+    			</div>
+  			</div>
+		</div>
+
+		<div class="modal fade" id="saveModal" tabindex="-1" role="dialog" aria-labelledby="saveModalLabel">
+  			<div class="modal-dialog" role="document">
+    			<div class="modal-content">
+      				<div class="modal-header">
+        				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        				<h4 class="modal-title" id="saveModalLabel">Save Deck Confirmation</h4>
+      				</div>
+      				<div class="modal-body">
+        				You are attempting to save the deck: <b id="deck-save-name">NOTHING SELECTED</b>.
+        				<br>
+      				</div>
+      				<div class="modal-footer">
+        				<button type="button" class="btn btn-info" data-dismiss="modal">Cancel</button>
+        				<button type="button" class="btn btn-success" id="confirm-save" data-dismiss="modal">Save Deck</button>
+      				</div>
+    			</div>
+  			</div>
+		</div>
+
+		<div class="modal fade" id="renameModal" tabindex="-1" role="dialog" aria-labelledby="renameModalLabel">
+  			<div class="modal-dialog" role="document">
+    			<div class="modal-content">
+      				<div class="modal-header">
+        				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        				<h4 class="modal-title" id="renameModalLabel">Rename Deck Confirmation</h4>
+      				</div>
+      				<div class="modal-body">
+        				You are attempting to rename the deck: <b id="deck-rename">NOTHING SELECTED</b>.
+        				<br><br>
+        				<input type="text" value="Enter New Deck Name" id="rename-input">
+        				<br>
+      				</div>
+      				<div class="modal-footer">
+        				<button type="button" class="btn btn-info" data-dismiss="modal">Cancel</button>
+        				<button type="button" class="btn btn-success" id="confirm-rename" data-dismiss="modal">Rename Deck</button>
+      				</div>
+    			</div>
+  			</div>
+		</div>
+		<!-- End Modals -->
+
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+		<script src="/socket.io/socket.io.js"></script>
+		<script>
+			var socket = io('/database');
+
+			function cardQuery(event){
+				event.preventDefault();
+				var cardName = $('#card-name').val();
+				socket.emit('card query', cardName, null, null, $('#exact-box').is(':checked'));
+				return true;
+			}
+
+			$('#random').on('click', ()=>{
+				socket.emit('card query', null, null, null, false);
+			});
+
+			$('#cards-in-deck').on('click', function(event){
+				if($(event.target).is('.card-li')){
+					socket.emit('card query', $(event.target).text(), $(event.target).attr('data_set_id'), $(event.target).attr('data_card_id'), true);
+					$('#card-div').eq(0).remove();
+				}
+				else if($(event.target).is('.glyphicon-remove')){
+					event.target.parentNode.remove();
+				}
+			});			
+
+			//begin modal event handlers
+			$('#delModal').on('show.bs.modal', function(event){
+				$('#deck-del-name').html($('#cards-in-deck').attr('data_deck'));
+				$('#confirm-del').on('click', function(event){
+						socket.emit('delete deck', $('#cards-in-deck').attr('data_deck'));
+						var $deck_option_to_remove = findElementByText($('#cards-in-deck').attr('data_deck'), "option");
+						$deck_option_to_remove.remove();
+						$('#cards-in-deck').empty();
+				});
+			});
+
+			$('#delModal').on('hide.bs.modal', function(event){
+				$('#confirm-del').off();
+			});
+
+			$('#newModal').on('show.bs.modal', function(event){
+				$('#confirm-new').on('click', function(event){
+						socket.emit('create new deck', $('#new-input').val().trim());
+						$("#confirm-del").removeAttr("disabled");
+				});
+			});
+
+			$('#newModal').on('hide.bs.modal', function(event){
+				$('#confirm-new').off();
+			});
+
+			$('#saveModal').on('show.bs.modal', function(event){
+				$('#deck-save-name').html($('#cards-in-deck').attr('data_deck'));
+				$('#confirm-save').on('click', function(event){
+						var deck_array = [];
+						$('.card-li').each((index, element)=>{
+							var cardObj = {};
+							cardObj.name = $(element).text();
+							cardObj.set_id = $(element).attr('data_set_id');
+							cardObj.card_id = $(element).attr('data_card_id');
+							deck_array.push(cardObj);
+						});
+						//populate deck_array
+						socket.emit('save deck', deck_array, $('#cards-in-deck').attr('data_deck'));
+				});
+			});
+
+			$('#saveModal').on('hide.bs.modal', function(event){
+				$('#confirm-save').off();
+			});
+
+			$('#renameModal').on('show.bs.modal', function(event){
+				$('#deck-rename').html($('#cards-in-deck').attr('data_deck'));
+				$('#confirm-rename').on('click', function(event){
+						socket.emit('rename deck', $('#cards-in-deck').attr('data_deck'), $('#rename-input').val().trim());
+				});
+			});
+
+			$('#renameModal').on('hide.bs.modal', function(event){
+				$('#confirm-rename').off();
+			});
+			//end modal event handlers
+
+			function findElementByText(text, element){
+    			var ele = $(element + ":contains(" + text + ")")
+            		.filter(function(){ return $(this).text() == text;});
+      			return ele;
+    		}
+
+    		socket.on('new deck created', (deck_name)=>{
+				//if keep cards box is checked then do not empty the <ul>
+				if(!($('#keep-cards:checked').length)){
+					$('#cards-in-deck').empty();
+					$('#cards-in-deck').eq(0).css('border-color', '#E5F5FF');
+				}
+				//add the card_name to the options
+				var tempItem = $("<option>", {class: "deck-select", text: deck_name});
+				$('#deck-options').append(tempItem);
+				//select fresh option
+				$('#deck-options').val(deck_name);
+				//set data_deck
+				$('#cards-in-deck').attr('data_deck', $('#deck-options').val());
+			});
+
+    		socket.on('deck renamed', (old_name, new_name)=>{
+    			//rename deck option
+    			var $deck_option_to_rename = findElementByText(old_name, "option");
+    			$deck_option_to_rename.text(new_name);
+    			//update deck_data on <ul>
+    			$('#cards-in-deck').attr('data_deck', new_name);
+    		});
+
+			socket.emit('get deck options');
+
+			socket.on('give deck options', function(options){
+				var tempItem;
+				for(var i = 0; i < options.length; i++){
+					tempItem = $("<option>", {class: "deck-select", text: options[i].name});
+					$('#deck-options').append(tempItem);
+				}
+			});
+
+			$('#choose-deck').on('click', function(event){
+			  //load chosen deck 
+			  socket.emit('get deck', $('#deck-options').val());
+			  $('#cards-in-deck').attr('data_deck', $('#deck-options').val());
+			  $("#confirm-del").removeAttr("disabled");
+			});
+
+			$('#add-to-deck').on('click', function(event){
+				if($('.card-img').attr('data_card_name')){
+					var $tempItem = $("<li>", {class: "card-li", text: $('.card-img').attr('data_card_name'), data_card_id: $('.card-img').attr('data_card_id'), data_set_id: $('.card-img').attr('data_set_id')});
+					var $tempSpan = $("<span>", {class: "glyphicon glyphicon-remove"});
+					$('#cards-in-deck').eq(0).append($tempItem.append($tempSpan));
+				}
+			});
+
+			socket.on('given deck', function(deck, deck_name){//no longer need deck_name?
+				//for each card in the response put it into a <li>
+				var $list = $('#cards-in-deck');
+				$list.empty();
+				$('#cards-in-deck').eq(0).css('border-color', 'black');
+				var tempItem = undefined, tempSpan;
+				for(var i = 0; i < deck.length; i++){
+					tempItem = $("<li>", {class: "card-li", text: deck[i].name, data_card_id: deck[i].card_id, data_set_id: deck[i].set_id});
+					tempSpan = $("<span>", {class: "glyphicon glyphicon-remove"});
+					$list.append(tempItem.append(tempSpan));
+				}
+			});
+
+			socket.on('deck creation fail', (error)=>{
+				alert(error);
+			});
+
+			socket.on('card query result', function(set_id, card_id, cardName, label_text){
+				//remove all cards
+				$('#card-div').eq(0).remove();
+				$('.edLink').remove();
+				var $cardDiv = $("<div>", {id: "card-div"});
+				var $edLink = undefined;
+				$('#query-div').append($cardDiv);
+				if(set_id == null){
+					$('#card-div').html('No Cards Matched Your Search Options');
+					return false;
+				}
+				//if the query returns less than 6 editions of a card
+				if(set_id.length <= 5){
+					for(var inc = 0; inc < set_id.length; inc++){
+						$edLink = $('<span>', {class: 'edLink btn btn-info', text: set_id[inc], data_set_id: set_id[inc], data_card_id: card_id[inc]});
+						if(inc == 0){
+							var $img = $('<img>', {class: 'card-img', src: "./card_images/" + set_id[inc] + "/" + card_id[inc] + ".jpg", data_set_id: set_id[inc], data_card_id: card_id[inc], data_card_name: cardName[inc]});
+							$('#card-div').append($img);
+							$('#card-div').append($('<span>', {id: 'editions-label', text: label_text}));
+						}
+						//make a hyperlink that when clicked changes the source of the above img to data held by this link
+						$('#card-div').append($edLink);
+						$edLink.on('click', function(event){
+							$('#card-div > img').eq(0).attr('src', "./card_images/" + event.target.getAttribute('data_set_id') + "/" + event.target.getAttribute('data_card_id') + ".jpg");
+							$('.card-img').attr('data_set_id', event.target.getAttribute('data_set_id'));
+							$('.card-img').attr('data_card_id', event.target.getAttribute('data_card_id'));
+						}); 
+					}
+				}
+				//if the query returns more than 5 editions of a card
+				else{
+					for(var inc = 0; inc < set_id.length; inc++){
+						$edOption = $('<option>', {class: 'edOption', text: set_id[inc], data_set_id: set_id[inc], data_card_id: card_id[inc], data_card_name: cardName[inc]});
+						if(inc == 0){
+							var $img = $('<img>', {class: 'card-img', src: "./card_images/" + set_id[inc] + "/" + card_id[inc] + ".jpg", data_set_id: set_id[inc], data_card_id: card_id[inc], data_card_name: cardName[inc]});
+							$('#card-div').append($img);
+							$('#card-div').append($('<span>', {id: 'editions-label', text: label_text}));
+							$('#card-div').append($('<select>', {id: 'editions-sel'}));
+						}
+						//make an <option> that when changed to the source of the card img is determined by data attr's of this option
+						$('#editions-sel').append($edOption);
+					}
+					$('#editions-sel').on('change', function(event){
+						var $selected = $('#editions-sel option:selected');
+						$('#card-div > img').eq(0).attr('src', "./card_images/" + $selected.attr('data_set_id') + "/" + $selected.attr('data_card_id') + ".jpg");
+						$('.card-img').attr('data_set_id', $selected.attr('data_set_id'));
+						$('.card-img').attr('data_card_id', $selected.attr('data_card_id'));
+						$('.card-img').attr('data_card_name', $selected.attr('data_card_name'));
+					}); 	
+				}
+				return true;
+			});
+			
+		</script>
+	</body>
+</html>

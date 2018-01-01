@@ -1,0 +1,36 @@
+//mixins
+
+@mixin clearFix{
+	&:after{
+		content:"";
+		clear:both;
+		display:block;
+	}
+}
+
+@mixin mQ($arg...) {
+	@if length($arg) == 1 {
+		@media screen and (min-width: nth($arg,1)){
+			@content;
+		}
+	}
+	@if length($arg) == 2 {
+		@media screen and (max-width: nth($arg,1)) and (min-width: nth($arg,2)){
+			@content;
+		}
+	}
+}
+
+//Styling for Landscape Orientation
+@mixin mQ_lan{
+	@media screen and (orientation:landscape){
+		@content;
+	}
+}
+
+//Media Query Mixin that checks orientation and takes one arg for min-width
+@mixin mQ_land($arg){
+	@media screen and (orientation:landscape) and (min-width: $arg){
+		@content;
+	}
+}
