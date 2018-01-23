@@ -8,7 +8,7 @@ var shuffle = require('shuffle-array');
 var jsdom = require("jsdom");
 var { JSDOM } = jsdom;
 var { window } = new JSDOM(`<!DOCTYPE html>`);
-var $ = require('jQuery')(window);
+var $ = require('jquery')(window);
 var mysql = require('mysql');
 const dotenv = require('dotenv').config();
 
@@ -35,12 +35,12 @@ setInterval(function () {
 
 app.use(express.static('media'));		//Get requests for static files start in the 'media' directory of mtg folder
 
-app.get('/', function (req, res) {
-  res.sendFile(__dirname + '/index.html');
+app.get('/game', function (req, res) {
+  res.sendFile(__dirname + '/game/index.html');
 });
 
-app.get('/database', function (req, res) {
-  res.sendFile(__dirname + '/database/index.html');
+app.get('/builder', function (req, res) {
+  res.sendFile(__dirname + '/builder/index.html');
 });
 
 //begin on connection event handler for the game namespace
@@ -129,9 +129,9 @@ game_nsp.on('connection', function(socket){
 //end on connection event handler for game namespace
 
 
-//socket event handlers for the database namespace
+//socket event handlers for the deck builder namespace
 
-var db_nsp = io.of('/database');
+var db_nsp = io.of('/builder');
 
 db_nsp.on('connection', function(socket){
 
@@ -279,7 +279,7 @@ db_nsp.on('connection', function(socket){
   });
 
 });
-//end of database namespace connection event handler
+//end of deck builder namespace connection event handler
 
 http.listen(89, function(){
   console.log('Node web server listening on *:89');

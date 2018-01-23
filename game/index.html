@@ -3,17 +3,17 @@
   <head>
     <title>Magic The Gathering</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="css/styles.css">
     <link rel="icon" href="favicon/favicon.ico" type="image/x-icon" />
   </head>
   <body oncontextmenu="return false;">
 
     <div class='board'>
-      <div><img class="mag" src="card_images/frontSrc2.jpg"></div>
+      <div><img class="mag" src="./card_images/frontSrc2.jpg"></div>
       <div class="handZone"></div>
       <div class="handZoneOppo"></div>
-      <div class="grave"><img src='/images/gravestone.png'></div>
-      <div class="graveOppo"><img src='/images/gravestone.png'></div>
+      <div class="grave"><img src='./images/gravestone.png'></div>
+      <div class="graveOppo"><img src='./images/gravestone.png'></div>
       <div class="magOppo">
         <ul id="tabs">
           <li><a href="#tools">Tools</a></li>
@@ -61,14 +61,14 @@
       <div class="divider"></div>
     </div>
 
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="./socket.io/socket.io.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
             integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
             crossorigin="anonymous">
     </script>
-    <script type="text/javascript" src='/javascript/underscore.js'></script>
-    <script type="text/javascript" src="/javascript/helperFxs.js"></script>
+    <script type="text/javascript" src='./javascript/underscore.js'></script>
+    <script type="text/javascript" src="./javascript/helperFxs.js"></script>
     <script>
       var myHealth = 20;
       var theirHealth = 20;
@@ -86,7 +86,7 @@
       var tokenText = "White Soldier Vigilance";
       var startCardPos = null;
       var socket = io('/game');
-      var fullUrl = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
+      var fullUrl = location.protocol + '//' + location.hostname + (location.port ? ':' + location.port: '');
       
       $(function(){
 
@@ -227,9 +227,9 @@
             var card = $(this).position();
             if(card.left >= -19 && card.left <= 30 && card.top >= 379 && card.top <= 429){
               $(this).css("zIndex", index + Math.round(Math.random()*120));
-              $(this).children()[0].src = '/card_images/frontSrc2.jpg';
+              $(this).children()[0].src = './card_images/frontSrc2.jpg';
               var className = this.id.slice(1);
-              socket.emit('flipShowCard', className, "/card_images/frontSrc.jpg");
+              socket.emit('flipShowCard', className, "./card_images/frontSrc.jpg");
               $(this)[0].style.top = "412px"; 
               $(this)[0].style.left = "0px";  
               if($(this)[0].style.transform == "rotate(90deg)"){
@@ -355,7 +355,7 @@
                   x.style.top = 138 + "px";
                   x.style.left = 240 + "px";
                   var className = x.id.slice(1);
-                  var src = "/card_images/" + $(x).children().data("set_id") + "/" + $(x).children().data("card_id") + ".jpg";
+                  var src = "./card_images/" + $(x).children().data("set_id") + "/" + $(x).children().data("card_id") + ".jpg";
                   socket.emit('flipShowCard', className, src);
                   var card = $(x).position();
                   socket.emit('dragged', card.left, card.top, className, src);
@@ -397,7 +397,7 @@
               $(query).children()[0].src = src;
             }
             else if(src !== undefined){
-              $(query).children()[0].src = '/card_images/frontSrc.jpg';
+              $(query).children()[0].src = './card_images/frontSrc.jpg';
             }
           }
         });
@@ -462,11 +462,11 @@
                 }
                 $(this).css("zIndex",index++);
                 if(!((card.left >= 70 && card.left <= 345 && card.top >= 356 && card.top <= 432) || (card.left >= -12 && card.left <= 174 && card.top <= 220 && card.top >= -12) || (card.left >= -16 && card.left <= 34 && card.top >= 379 && card.top <= 427))){
-                  if($(this).children()[0].src == fullUrl + "/card_images/frontSrc2.jpg"){
-                    $(this).children()[0].src = "/card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg";
+                  if($(this).children()[0].src == fullUrl + "/mtg/card_images/frontSrc2.jpg"){
+                    $(this).children()[0].src = "./card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg";
                   }
                   var className = this.id.slice(1);
-                  var src = "/card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg";
+                  var src = "./card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg";
                   socket.emit('flipShowCard', className, src);
                 }
                 //debounce (trailing) this too
@@ -496,7 +496,7 @@
               }
               else{
                 this.style.zIndex = --negIndex;
-                $(this).children()[0].src = "/card_images/frontSrc2.jpg"
+                $(this).children()[0].src = "./card_images/frontSrc2.jpg"
                 this.style.top = 412 + "px";
                 this.style.left = 0;
                 var card = $(this).position();
@@ -519,11 +519,11 @@
             $('.myCard').on('mousedown', function(event){
               if(event.which == 3){
                 if(!event.ctrlKey){ 
-                  if($(this).children()[0].src == fullUrl + "/card_images/frontSrc2.jpg"){
-                    $(this).children()[0].src = "/card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg";
+                  if($(this).children()[0].src == fullUrl + "/mtg/card_images/frontSrc2.jpg"){
+                    $(this).children()[0].src = "./card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg";
                   }
                   else{
-                    $(this).children()[0].src = "/card_images/frontSrc2.jpg";
+                    $(this).children()[0].src = "./card_images/frontSrc2.jpg";
                   }
                   var card = $(this).position();
                   if(!((card.left >= 76 && card.left <= 345 && card.top >= 368 && card.top <= 412) || (card.left >= -12 && card.left <= 174 && card.top <= 220 && card.top >= -12))){
@@ -550,11 +550,11 @@
             });
 
             $('.myCard').mouseover(function(){
-              if($(this).children()[0].src == fullUrl + '/card_images/frontSrc2.jpg'){
-                $('.mag').attr("src", "/card_images/frontSrc2.jpg");
+              if($(this).children()[0].src == fullUrl + '/mtg/card_images/frontSrc2.jpg'){
+                $('.mag').attr("src", "./card_images/frontSrc2.jpg");
               }
               else{
-                $('.mag').attr("src", "/card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg");
+                $('.mag').attr("src", "./card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg");
               }
             });
 
@@ -572,7 +572,7 @@
             span.className += (' myCard card');
             span.id = ('m' + inc);
             span.style.zIndex = 60;
-            img.setAttribute('src', '/card_images/frontSrc2.jpg');
+            img.setAttribute('src', './card_images/frontSrc2.jpg');
             $(img).data('cardName', card.name);
             $(img).data('set_id', card.set_id);
             $(img).data('card_id', card.card_id);
@@ -580,7 +580,7 @@
           else{
             span.className += (' theirCard card');
             span.id = ('o' + inc);
-            img.setAttribute('src', '/card_images/frontSrc.jpg');
+            img.setAttribute('src', './card_images/frontSrc.jpg');
             $(img).data('set_id', card.set_id);
             $(img).data('card_id', card.card_id);
           }
@@ -598,8 +598,8 @@
         var searchDeck = function(){
           length++;
           $(this).on('mouseover', _.debounce(function(event){
-            if($(this).children()[0].src == fullUrl + "/card_images/frontSrc2.jpg"){//if back of card, show front
-              $(this).children()[0].src = "/card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg";
+            if($(this).children()[0].src == fullUrl + "/mtg/card_images/frontSrc2.jpg"){//if back of card, show front
+              $(this).children()[0].src = "./card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg";
             }
             $(this).attr('tabindex', 0);
             $(this).focus();
