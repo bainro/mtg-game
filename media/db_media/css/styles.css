@@ -38,8 +38,9 @@ body {
   font-weight: bold; }
 
 #query-div {
-  margin: 1em 0 .25em 0em;
-  padding-left: 2em; }
+  margin: 0em 0 .25em 0em;
+  padding-left: 2em;
+  padding-top: 1em; }
 
 #add-to-deck {
   float: right; }

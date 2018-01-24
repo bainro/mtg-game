@@ -281,8 +281,8 @@ db_nsp.on('connection', function(socket){
 });
 //end of deck builder namespace connection event handler
 
-http.listen(89, function(){
-  console.log('Node web server listening on *:89');
+http.listen(88, function(){
+  console.log('Node web server listening on *:88');
 });
 
 //Global Functions

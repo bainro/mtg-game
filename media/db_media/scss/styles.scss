@@ -6,8 +6,8 @@
 
 body{
   background-color: #E5F5FF;
-  counter-reset: card-count;
-  max-width:	96vw;
+  counter-reset: 	card-count;
+  max-width:		96vw;
 }
 
 #choose-deck, #save-deck, #new-deck, #rename-deck, #delete-deck{
@@ -16,8 +16,9 @@ body{
 }
 
 #query-div{
-	margin:	1em 0 .25em 0em;
-	padding-left: 2em;
+	margin:			0em 0 .25em 0em;
+	padding-left: 	2em;
+	padding-top:	1em;
 }
 
 #add-to-deck{

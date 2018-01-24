@@ -270,6 +270,16 @@ img {
   left: 80px;
   border-radius: 10px; }
 
+#builder {
+  cursor: pointer;
+  position: absolute;
+  display: none;
+  left: 80px;
+  bottom: 192px;
+  border-radius: 10px;
+  text-align: center;
+  width: 118px; }
+
 #help {
   position: absolute;
   cursor: pointer;

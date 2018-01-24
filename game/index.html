@@ -31,6 +31,9 @@
           <input id='search' type='button' value="search">
           <input id='token' type='button' value="token">
           <input id='help' type='button' value="rules">
+          <a href="http://www.rkbain.com/mtg/builder" target="_blank" rel="noopener">
+            <input id='builder' type='button' value="Deck Builder">
+          </a>
           <input id='apod' type='button' value="background">
           <p id="background-desc">The Westerlund 2 cluster consists of roughly 3,000 stars inside a vibrant stellar breeding ground known as Gum 29, located 20,000 light-years away in the constellation Carina. The comparatively young, 2-million-year-old star cluster contains some of our galaxy's hottest, brightest, and most massive stars. The largest stars are unleashing a torrent of ultraviolet light and hurricane-force winds that etch away the enveloping hydrogen gas cloud. This creates a fantasy celestial landscape of pillars, ridges, and valleys.<br>  
             <a href="https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/NASA_Unveils_Celestial_Fireworks_as_Official_Hubble_25th_Anniversary_Image.jpg/1024px-NASA_Unveils_Celestial_Fireworks_as_Official_Hubble_25th_Anniversary_Image.jpg" target="_blank">View Full Image</a>
@@ -427,7 +430,7 @@
                 $('.mag').attr("src", $(this).children()[0].src);
 
           });
-          $('#shuffle, #search, #myHealth, #theirHealth, #token, #apod, #background-desc').each(function(_, element){element.style.display="inline"});
+          $('#shuffle, #search, #builder, #myHealth, #theirHealth, #token, #apod, #background-desc').each(function(_, element){element.style.display="inline"});
           $('#help').css("bottom", "192px");
           $('#help').css("left", "15px");
         });
