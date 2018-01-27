@@ -1,687 +1,707 @@
 <!doctype html>
 <html>
-  <head>
-    <title>Magic The Gathering</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="icon" href="favicon/favicon.ico" type="image/x-icon" />
-  </head>
-  <body oncontextmenu="return false;">
 
-    <div class='board'>
-      <div><img class="mag" src="./card_images/frontSrc2.jpg"></div>
-      <div class="handZone"></div>
-      <div class="handZoneOppo"></div>
-      <div class="grave"><img src='./images/gravestone.png'></div>
-      <div class="graveOppo"><img src='./images/gravestone.png'></div>
-      <div class="magOppo">
-        <ul id="tabs">
-          <li><a href="#tools">Tools</a></li>
-          <li><a href="#chat" onclick="showSpeak()">Chat</a></li>
-          <li><a href="#log">Log</a></li>
-        </ul>
-        <div id="tools">
-          <form id="chooseDeck"> 
-            <select class="deckOptions">    
-              <!-- Populated via JS -->             
-            </select>
-            <input type='submit' value="submit">
-          </form>
-          <input id='shuffle' type='button' value="shuffle">
-          <input id='search' type='button' value="search">
-          <input id='token' type='button' value="token">
-          <input id='help' type='button' value="rules">
-          <a href="http://www.rkbain.com/mtg/builder" target="_blank" rel="noopener">
-            <input id='builder' type='button' value="Deck Builder">
-          </a>
-          <input id='apod' type='button' value="background">
-          <p id="background-desc">The Westerlund 2 cluster consists of roughly 3,000 stars inside a vibrant stellar breeding ground known as Gum 29, located 20,000 light-years away in the constellation Carina. The comparatively young, 2-million-year-old star cluster contains some of our galaxy's hottest, brightest, and most massive stars. The largest stars are unleashing a torrent of ultraviolet light and hurricane-force winds that etch away the enveloping hydrogen gas cloud. This creates a fantasy celestial landscape of pillars, ridges, and valleys.<br>  
-            <a href="https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/NASA_Unveils_Celestial_Fireworks_as_Official_Hubble_25th_Anniversary_Image.jpg/1024px-NASA_Unveils_Celestial_Fireworks_as_Official_Hubble_25th_Anniversary_Image.jpg" target="_blank">View Full Image</a>
-          
-          </p>
-          <div id="myHealth">
-            20
-          </div>
-          <div id="theirHealth">
-            20
-          </div>
+<head>
+  <title>Magic The Gathering</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="favicon/favicon.ico" type="image/x-icon" />
+</head>
+
+<body oncontextmenu="return false;">
+
+  <div class='board'>
+    <div>
+      <img class="mag" src="./card_images/frontSrc2.jpg">
+    </div>
+    <div class="handZone"></div>
+    <div class="handZoneOppo"></div>
+    <div class="grave">
+      <img src='./images/gravestone.png'>
+    </div>
+    <div class="graveOppo">
+      <img src='./images/gravestone.png'>
+    </div>
+    <div class="magOppo">
+      <ul id="tabs">
+        <li>
+          <a href="#tools">Tools</a>
+        </li>
+        <li>
+          <a href="#chat" onclick="showSpeak()">Chat</a>
+        </li>
+        <li>
+          <a href="#log">Log</a>
+        </li>
+      </ul>
+      <div id="tools">
+        <form id="chooseDeck">
+          <select class="deckOptions">
+            <!-- Populated via JS -->
+          </select>
+          <input type='submit' value="submit">
+        </form>
+        <input id='shuffle' type='button' value="shuffle">
+        <input id='search' type='button' value="search">
+        <input id='token' type='button' value="token">
+        <input id='help' type='button' value="rules">
+        <a href="http://www.rkbain.com/mtg/builder" target="_blank" rel="noopener">
+          <input id='builder' type='button' value="Deck Builder">
+        </a>
+        <input id='apod' type='button' value="background">
+        <p id="background-desc">The Westerlund 2 cluster consists of roughly 3,000 stars inside a vibrant stellar breeding ground known as Gum 29,
+          located 20,000 light-years away in the constellation Carina. The comparatively young, 2-million-year-old star cluster
+          contains some of our galaxy's hottest, brightest, and most massive stars. The largest stars are unleashing a torrent
+          of ultraviolet light and hurricane-force winds that etch away the enveloping hydrogen gas cloud. This creates a
+          fantasy celestial landscape of pillars, ridges, and valleys.
+          <br>
+          <a href="https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/NASA_Unveils_Celestial_Fireworks_as_Official_Hubble_25th_Anniversary_Image.jpg/1024px-NASA_Unveils_Celestial_Fireworks_as_Official_Hubble_25th_Anniversary_Image.jpg"
+            target="_blank">View Full Image</a>
+
+        </p>
+        <div id="myHealth">
+          20
         </div>
-        <div id="chat">
-          <ul id="chatroom">
-            <!--CHATROOM-->
-          </ul>
-          <form id="speak" autocomplete="off">
-            <input type="text" id="text">
-            <input type="button" id="chatbutton" value="Senpai">
-          </form>
-        </div>
-        <div id="log">
-          <ul id="logroom">
-            <!--LOG-->
-          </ul>
+        <div id="theirHealth">
+          20
         </div>
       </div>
-      <div class="divider"></div>
+      <div id="chat">
+        <ul id="chatroom">
+          <!--CHATROOM-->
+        </ul>
+        <form id="speak" autocomplete="off">
+          <input type="text" id="text">
+          <input type="button" id="chatbutton" value="Senpai">
+        </form>
+      </div>
+      <div id="log">
+        <ul id="logroom">
+          <!--LOG-->
+        </ul>
+      </div>
     </div>
+    <div class="divider"></div>
+  </div>
 
-    <script src="./socket.io/socket.io.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
-            integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
-            crossorigin="anonymous">
+  <script src="./socket.io/socket.io.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+    crossorigin="anonymous">
     </script>
-    <script type="text/javascript" src='./javascript/underscore.js'></script>
-    <script type="text/javascript" src="./javascript/helperFxs.js"></script>
-    <script>
-      var myHealth = 20;
-      var theirHealth = 20;
-      var negIndex = 60;
-      var index = 60;
-      var toggle = true;
-      var choiceArray = new Array(120+1).join('0').split('').map(parseFloat);
-      var cardArray = [];
-      var length = 0;
-      var rightCounter = 0;
-      var lowestCard = [];
-      var opponentCardCount = 0;
-      var myCardCount = 0;
-      var powerTough = "1/1";
-      var tokenText = "White Soldier Vigilance";
-      var startCardPos = null;
-      var socket = io('/game');
-      var fullUrl = location.protocol + '//' + location.hostname + (location.port ? ':' + location.port: '');
-      
-      $(function(){
+  <script type="text/javascript" src='./javascript/underscore.js'></script>
+  <script type="text/javascript" src="./javascript/helperFxs.js"></script>
+  <script>
+    var myHealth = 20;
+    var theirHealth = 20;
+    var negIndex = 60;
+    var index = 60;
+    var toggle = true;
+    var choiceArray = new Array(120 + 1).join('0').split('').map(parseFloat);
+    var cardArray = [];
+    var length = 0;
+    var rightCounter = 0;
+    var lowestCard = [];
+    var opponentCardCount = 0;
+    var myCardCount = 0;
+    var powerTough = "1/1";
+    var tokenText = "White Soldier Vigilance";
+    var startCardPos = null;
+    var socket = io('/game');
+    var fullUrl = location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '');
 
-        $('.magOppo').tabs();
+    $(function () {
 
-        //Event Handlers:
+      $('.magOppo').tabs();
 
-        //study this. It was from stack
-        $('#text').on('keyup keypress', function(event) {
-          var keyCode = event.keyCode || event.which;
-          if (keyCode === 13) { 
-            event.preventDefault();
-            var msg = $('#text')[0].value; //turn this into fx!
-            socket.emit('message', msg);
-            var li = document.createElement('li');
-            li.style.color = "#F02828";
-            li.style.textAlign = "right";  
-            li.style.paddingRight = ".5em";      
-            li.appendChild(document.createTextNode(msg));
-            $('#chatroom').append(li);
-            $('#text')[0].value = "";
-            $('#chatroom')[0].scrollTop = $('#chatroom')[0].scrollHeight - $('#chatroom')[0].clientHeight; 
-            return false;
-          }
-        });
+      //Event Handlers:
 
-        socket.emit('get deck options');
-
-        socket.on('give deck options', function(options){
-          var tempItem;
-          for(var i = 0; i < options.length; i++){
-            tempItem = $("<option>", {class: "deck-select", text: options[i].name});
-            $('.deckOptions').append(tempItem);
-          }
-        });
-
-        $('#help').on('click', function(event){
-          window.open('http://rkbain.com/rules.html');
-        });
-
-        $('#apod').on('click', function(event){
-          socket.emit('background');
-        });
-
-        socket.on('background', function(url, desc){
-          //console.log(url);
-          $('body').css('background-image', "url(" + url + ")");
-          $('#background-desc').html(desc + "<br><a href=" + url + " target='_blank'>View Full Image</a>");
-        });
-
-        $('#myHealth').on('mousedown', function(event){
-          if(event.which == 1){
-            this.innerHTML = --myHealth;
-            socket.emit('deltaHealth', false);
-            var timeStamp = getTimeStamp();
-            //needs to be debounced (trailing)
-            socket.emit('log', timeStamp, 'Decremented Health to ' + myHealth + ' at ');
-            var li = elt('li', ("Decremented Health to " + myHealth + " at " + timeStamp));
-            li.style.color = "#F02828";
-            li.style.textAlign = "right";
-            $('#logroom').append(li);
-          }
-          else{
-            this.innerHTML = ++myHealth;
-            socket.emit('deltaHealth', true);
-          }
-        });
-
-        socket.on('deltaHealth', function(bool){
-          $('#theirHealth').css('boxShadow',"none");
-          $('#theirHealth').css('bottom',"0px");
-          setTimeout(function(){
-            $('#theirHealth').css('boxShadow',"0 6px rgba(30, 61, 117, 1)");
-            $('#theirHealth').css('bottom',"6px");
-          }, 100);
-          if(bool){
-            $('#theirHealth')[0].innerHTML = ++theirHealth;
-          }
-          else{
-            $('#theirHealth')[0].innerHTML = --theirHealth;
-          }
-        })
-
-        $('#chooseDeck').on('submit', function(event){
+      //study this. It was from stack
+      $('#text').on('keyup keypress', function (event) {
+        var keyCode = event.keyCode || event.which;
+        if (keyCode === 13) {
           event.preventDefault();
-          var deckChoice = $('.deckOptions')[0].value;
-          $('#chooseDeck').eq(0).remove();
-          socket.emit('deck chosen', socket.id, deckChoice);
-        });
-
-        $('#chatbutton').on('click', function(event){
-          event.preventDefault();
-          var msg = $('#text')[0].value;
-          $('#text')[0].value = "";
+          var msg = $('#text')[0].value; //turn this into fx!
           socket.emit('message', msg);
-          var li = document.createElement('li'); 
+          var li = document.createElement('li');
           li.style.color = "#F02828";
-          li.style.textAlign = "right";  
-          li.style.paddingRight = ".5em";      
+          li.style.textAlign = "right";
+          li.style.paddingRight = ".5em";
           li.appendChild(document.createTextNode(msg));
           $('#chatroom').append(li);
           $('#text')[0].value = "";
-          $('#chatroom')[0].scrollTop = $('#chatroom')[0].scrollHeight - $('#chatroom')[0].clientHeight; //end
+          $('#chatroom')[0].scrollTop = $('#chatroom')[0].scrollHeight - $('#chatroom')[0].clientHeight;
+          return false;
+        }
+      });
+
+      socket.emit('get deck options');
+
+      socket.on('give deck options', function (options) {
+        var tempItem;
+        for (var i = 0; i < options.length; i++) {
+          tempItem = $("<option>", { class: "deck-select", text: options[i].name });
+          $('.deckOptions').append(tempItem);
+        }
+      });
+
+      $('#help').on('click', function (event) {
+        window.open('http://rkbain.com/rules.html');
+      });
+
+      $('#apod').on('click', function (event) {
+        socket.emit('background');
+      });
+
+      socket.on('background', function (url, desc) {
+        //console.log(url);
+        $('body').css('background-image', "url(" + url + ")");
+        $('#background-desc').html(desc + "<br><a href=" + url + " target='_blank'>View Full Image</a>");
+      });
+
+      $('#myHealth').on('mousedown', function (event) {
+        if (event.which == 1) {
+          this.innerHTML = --myHealth;
+          socket.emit('deltaHealth', false);
+          var timeStamp = getTimeStamp();
+          //needs to be debounced (trailing)
+          socket.emit('log', timeStamp, 'Decremented Health to ' + myHealth + ' at ');
+          var li = elt('li', ("Decremented Health to " + myHealth + " at " + timeStamp));
+          li.style.color = "#F02828";
+          li.style.textAlign = "right";
+          $('#logroom').append(li);
+        }
+        else {
+          this.innerHTML = ++myHealth;
+          socket.emit('deltaHealth', true);
+        }
+      });
+
+      socket.on('deltaHealth', function (bool) {
+        $('#theirHealth').css('boxShadow', "none");
+        $('#theirHealth').css('bottom', "0px");
+        setTimeout(function () {
+          $('#theirHealth').css('boxShadow', "0 6px rgba(30, 61, 117, 1)");
+          $('#theirHealth').css('bottom', "6px");
+        }, 100);
+        if (bool) {
+          $('#theirHealth')[0].innerHTML = ++theirHealth;
+        }
+        else {
+          $('#theirHealth')[0].innerHTML = --theirHealth;
+        }
+      })
+
+      $('#chooseDeck').on('submit', function (event) {
+        event.preventDefault();
+        var deckChoice = $('.deckOptions')[0].value;
+        $('#chooseDeck').eq(0).remove();
+        socket.emit('deck chosen', socket.id, deckChoice);
+      });
+
+      $('#chatbutton').on('click', function (event) {
+        event.preventDefault();
+        var msg = $('#text')[0].value;
+        $('#text')[0].value = "";
+        socket.emit('message', msg);
+        var li = document.createElement('li');
+        li.style.color = "#F02828";
+        li.style.textAlign = "right";
+        li.style.paddingRight = ".5em";
+        li.appendChild(document.createTextNode(msg));
+        $('#chatroom').append(li);
+        $('#text')[0].value = "";
+        $('#chatroom')[0].scrollTop = $('#chatroom')[0].scrollHeight - $('#chatroom')[0].clientHeight; //end
+      });
+
+      $('#myHealth, #theirHealth').on('mousedown', function () {
+        $(this).css('boxShadow', "none");
+        $(this).css('bottom', "0px");
+      });
+
+      $('#myHealth, #theirHealth').on('mouseup', function () {
+        $(this).css('boxShadow', "0 8px " + getShadowColor.call(this));
+        $(this).css('bottom', "8px");
+      });
+
+      $('#myHealth, #theirHealth').on('mouseenter', function () {
+        $(this).css('boxShadow', "0 8px " + getShadowColor.call(this));
+        $(this).css('bottom', "8px");
+      });
+
+      $('#myHealth, #theirHealth').on('mouseleave', function () {
+        $(this).css('boxShadow', "0 6px " + getShadowColor.call(this));
+        $(this).css('bottom', "6px");
+      });
+
+      socket.on("message", function (msg) {
+        var li = document.createElement('li');
+        li.style.color = "#2C83E2";
+        li.style.textAlign = "left";
+        li.style.paddingLeft = ".3em";
+        li.appendChild(document.createTextNode(msg));
+        $('#chatroom').append(li);
+        $('#chatroom')[0].scrollTop = $('#chatroom')[0].scrollHeight - $('#chatroom')[0].clientHeight; //end
+      });
+
+      $('#shuffle').click(function () {
+        $('.myCard.card').each(function () {
+          var card = $(this).position();
+          if (card.left >= -19 && card.left <= 30 && card.top >= 379 && card.top <= 429) {
+            $(this).css("zIndex", index + Math.round(Math.random() * 120));
+            $(this).children()[0].src = './card_images/frontSrc2.jpg';
+            var className = this.id.slice(1);
+            socket.emit('flipShowCard', className, "./card_images/frontSrc.jpg");
+            $(this)[0].style.top = "412px";
+            $(this)[0].style.left = "0px";
+            if ($(this)[0].style.transform == "rotate(90deg)") {
+              $(this).css("transform", "rotate(0deg)");
+              var tapTog = true;
+              socket.emit('tapped', className, tapTog);
+            }
+          }
         });
+        index += 120;
+        var timeStamp = getTimeStamp();
+        var action = 'Shuffled at';
+        socket.emit("log", timeStamp, action);
+        logHandler(timeStamp, action);
+      });
 
-        $('#myHealth, #theirHealth').on('mousedown', function(){
-          $(this).css('boxShadow',"none");
-          $(this).css('bottom',"0px");
-        });
+      socket.on('log', function (timeStamp, action) {
+        var li = elt('li', (action + timeStamp));
+        li.style.color = "#2C83E2";
+        li.style.textAlign = "left";
+        $('#logroom').append(li);
+        $('#logroom')[0].scrollTop = $('#logroom')[0].scrollHeight - $('#logroom')[0].clientHeight;
+      });
 
-        $('#myHealth, #theirHealth').on('mouseup', function(){
-          $(this).css('boxShadow',"0 8px " + getShadowColor.call(this));
-          $(this).css('bottom',"8px");
-        }); 
-
-        $('#myHealth, #theirHealth').on('mouseenter', function(){
-          $(this).css('boxShadow',"0 8px " + getShadowColor.call(this));
-          $(this).css('bottom',"8px");
-        });
-
-        $('#myHealth, #theirHealth').on('mouseleave', function(){
-          $(this).css('boxShadow',"0 6px " + getShadowColor.call(this));
-          $(this).css('bottom',"6px");
-        });           
-
-        socket.on("message", function(msg){
-          var li = document.createElement('li'); 
-          li.style.color = "#2C83E2";
-          li.style.textAlign = "left";  
-          li.style.paddingLeft = ".3em";      
-          li.appendChild(document.createTextNode(msg));
-          $('#chatroom').append(li);
-          $('#chatroom')[0].scrollTop = $('#chatroom')[0].scrollHeight - $('#chatroom')[0].clientHeight; //end
-        });
-
-        $('#shuffle').click(function(){
-          $('.myCard.card').each(function(){
+      $('#token').click(function () {
+        powerTough = window.prompt("Token's power/toughness:", powerTough);
+        tokenText = window.prompt("Put token's colors, types, and abilities", tokenText);
+        var token = elt("div", powerTough);
+        token.className += ('token');
+        token.title = tokenText;
+        token.id = ('m' + ++myCardCount);
+        color1 = randomColor();
+        color2 = randomColor();
+        color3 = randomColor();
+        angle = Math.floor(Math.random() * 90);
+        token.style.background = color1;
+        token.style.background = "-webkit-linear-gradient(to top, " + color1 + ", " + color2 + ", " + color3 + ")";
+        token.style.background = "linear-gradient(" + angle + "deg, " + color1 + ", " + color2 + ", " + color3 + ")";
+        socket.emit('createToken', powerTough, tokenText, myCardCount, color1, color2, color3, angle);
+        $('.board').append(token);
+        $(token).draggable({
+          stop: function () {
             var card = $(this).position();
-            if(card.left >= -19 && card.left <= 30 && card.top >= 379 && card.top <= 429){
-              $(this).css("zIndex", index + Math.round(Math.random()*120));
-              $(this).children()[0].src = './card_images/frontSrc2.jpg';
+            var thisCopy = this.id.slice(1);
+            if (card.left < 24 && card.left > -24 && card.top < 344 && card.top > 296) {
+              $(this).off();
+              socket.emit('destroyToken', this.id.slice(1));
+              myCardCount--;
+              this.remove();
+            }
+            else
+              socket.emit('dragged', card.left, card.top, thisCopy, undefined);
+          }
+        });
+        $(token).on('mousedown', function (event) {
+          if (event.ctrlKey) {
+            if ($(this)[0].style.transform == "rotate(90deg)") {
+              $(this).css("transform", "rotate(0deg)");
+              var tapTog = true;
+            }
+            else {
+              $(this).css("transform", "rotate(90deg)");
+              var tapTog = false;
+            }
+            var className = this.id.slice(1);
+            socket.emit('tapped', className, tapTog);
+          }
+        });
+      });
+
+      socket.on('destroyToken', function (id) {
+        var query = '#o' + id;
+        $(query).remove();
+      });
+
+      socket.on('createToken', function (powerTough, tokenText, myCardCount, color1, color2, color3, angle) {
+        var token = elt("div", powerTough);
+        token.className += ('token');
+        token.title = tokenText;
+        token.id = ('o' + myCardCount);
+        opponentCardCount++;
+        token.style.background = color1;
+        token.style.background = "-webkit-linear-gradient(to top, " + color1 + ", " + color2 + ", " + color3 + ")";
+        token.style.background = "linear-gradient(" + angle + "deg, " + color1 + ", " + color2 + ", " + color3 + ")";
+        $('.board').append(token);
+      });
+
+      $('#search').click(function () {
+        if (toggle) {
+          length = 0;
+          rightCounter = 0;
+          lowestCard = [];
+          toggle = !toggle;
+          $('.myCard').off('mousedown');
+          $('.myCard').off('mouseover');
+          $(".myCard").draggable("destroy");
+          var timeStamp = getTimeStamp();
+          var action = "Began Searching Deck at ";
+          socket.emit('log', timeStamp, action);
+          logHandler(timeStamp, action);
+          $('.card').each(function () {
+            var card = $(this).position();
+            if (card.left >= -19 && card.left <= 30 && card.top >= 379 && card.top <= 429) {
+              searchDeck.call(this);
+            }
+            //else if(card.left >= -19 && card.left <= 30 && card.top >= 379 && card.top <= 429){
+
+            //}
+          });
+        }
+        else {
+          toggle = !toggle;
+          $('#shuffle').click();
+          $('.myCard').children().each(function (_, element) { element.innerHTML = ''; });
+          $('.myCard.card').off('mouseover');
+          //go thru every index of choiceArray. case statement the modulo value, if 1 goes to battlefield, if 2 goes to hand, if 3 goes on bottom of deck, on 0 break;
+          choiceArray.forEach(function (choice, index) {
+            switch (choice % 4) {
+              case 0:
+                break;
+              case 1:
+                var x = cardArray[index];
+                x.style.top = 138 + "px";
+                x.style.left = 240 + "px";
+                var className = x.id.slice(1);
+                var src = "./card_images/" + $(x).children().data("set_id") + "/" + $(x).children().data("card_id") + ".jpg";
+                socket.emit('flipShowCard', className, src);
+                var card = $(x).position();
+                socket.emit('dragged', card.left, card.top, className, src);
+                break;
+              case 2:
+                var x = cardArray[index];
+                x.style.top = 400 + "px";
+                x.style.left = 160 + "px";
+                x.children[0].style.display = "initial";
+                var thisCopy = x.id.slice(1);
+                socket.emit('dragged', 160, 400, thisCopy, false);
+                break;
+              case 3:
+                var x = cardArray[index];
+                x.style.zIndex = --negIndex;
+                if (negIndex < 2) {
+                  negIndex = 60;
+                }
+                break;
+            }
+          });
+          restoreHandlers(fullUrl);
+          for (var inc = 0; inc < 120; inc++) {
+            choiceArray[inc] = 0;
+          }
+          cardArray = [];
+        }
+      });
+
+      socket.on('dragged', function (left, top, id, src) {
+        var query = '#o' + id;
+        document.querySelector(query).style.top = "auto";
+        document.querySelector(query).style.left = "auto";
+        document.querySelector(query).style.bottom = top + "px";
+        document.querySelector(query).style.right = left + "px";
+        document.querySelector(query).style.zIndex = index++;
+        if ($(query).children()[0]) {
+          if (src) {
+            $(query).children()[0].src = src;
+          }
+          else if (src !== undefined) {
+            $(query).children()[0].src = './card_images/frontSrc.jpg';
+          }
+        }
+      });
+
+      socket.on('tapped', function (id, tapCur) {
+        var query = '#o' + id;
+        if (tapCur) {
+          document.querySelector(query).style.transform = "rotate(0deg)";
+        }
+        else {
+          document.querySelector(query).style.transform = "rotate(90deg)";
+        }
+      });
+
+      socket.on('flipShowCard', function (id, src) {
+        var query = '#o' + id;
+        $(query).children()[0].src = src;
+        $(query)[0].style.zIndex = index++;
+      });
+
+      socket.on('given opponent', function (JSON) {
+        for (opponentCardCount; opponentCardCount < JSON.length; opponentCardCount++) {
+          createCard(JSON[opponentCardCount], false, opponentCardCount);
+        }
+        $('.theirCard').mouseenter(function () {
+
+          $('.mag').attr("src", $(this).children()[0].src);
+
+        });
+        $('#shuffle, #search, #builder, #myHealth, #theirHealth, #token, #apod, #background-desc').each(function (_, element) { element.style.display = "inline" });
+        $('#help').css("bottom", "192px");
+        $('#help').css("left", "15px");
+      });
+
+      //begin 'given deck' event handler
+      socket.on('given deck', function (deck) {
+
+        var counterText = "2/3";
+        var moreText = "Flying 3 Charge Counters";
+
+        for (myCardCount; myCardCount < deck.length; myCardCount++) {
+          createCard(deck[myCardCount], true, myCardCount);
+        }
+
+        $(".myCard").draggable({
+          stop: function () {
+            var card = $(this).position();
+            var src = undefined;
+
+            if ((startCardPos.left >= -16 && startCardPos.left <= 34 && startCardPos.top >= 379 && startCardPos.top <= 427) && !(card.left >= -16 && card.left <= 34 && card.top >= 379 && card.top <= 427)) {
+              action = "Drew Card From Deck at ";
+              timeStamp = getTimeStamp();
+              socket.emit('log', timeStamp, action);
+              logHandler(timeStamp, action);
+            }
+            if ((startCardPos.left <= 24 && startCardPos.left >= -24 && startCardPos.top <= 344 && startCardPos.top >= 296) && !(card.left <= 24 && card.left >= -24 && card.top <= 344 && card.top >= 296)) {
+              var cardName = $(this).children().data('cardName');
+              action = cardName + " Retrieved From Grave at ";
+              timeStamp = getTimeStamp();
+              socket.emit('log', timeStamp, action);
+              logHandler(timeStamp, action);
+            }
+            $(this).css("zIndex", index++);
+            if (!((card.left >= 70 && card.left <= 345 && card.top >= 356 && card.top <= 432) || (card.left >= -12 && card.left <= 174 && card.top <= 220 && card.top >= -12) || (card.left >= -16 && card.left <= 34 && card.top >= 379 && card.top <= 427))) {
+              if ($(this).children()[0].src == fullUrl + "/mtg/card_images/frontSrc2.jpg") {
+                $(this).children()[0].src = "./card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg";
+              }
               var className = this.id.slice(1);
-              socket.emit('flipShowCard', className, "./card_images/frontSrc.jpg");
-              $(this)[0].style.top = "412px"; 
-              $(this)[0].style.left = "0px";  
-              if($(this)[0].style.transform == "rotate(90deg)"){
-                $(this).css("transform","rotate(0deg)");
-                var tapTog = true;
+              var src = "./card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg";
+              socket.emit('flipShowCard', className, src);
+            }
+            //debounce (trailing) this too
+            if (card.left < 24 && card.left > -24 && card.top < 344 && card.top > 296) {
+              var timeStamp = getTimeStamp();
+              var cardName = $(this).children().data('cardName');
+              var action = cardName + ' Discarded at '
+              socket.emit('log', timeStamp, action);
+              logHandler(timeStamp, action);
+            }
+            var id = this.id.slice(1);
+            socket.emit('dragged', card.left, card.top, id, src);
+          },
+          start: function () {
+            startCardPos = $(this).position();
+          }
+        });
+
+        $('.myCard').on('dblclick', function (event) {
+          if (!event.ctrlKey) {
+            counterText = window.prompt("Power/Toughness:", counterText);
+            moreText = window.prompt("Other Text to add to Card", moreText);
+            $(this).children().eq(1).text(counterText);
+            this.title = moreText;
+            var id = this.id.slice(1);
+            socket.emit('addCounter', counterText, moreText, id);
+          }
+          else {
+            this.style.zIndex = --negIndex;
+            $(this).children()[0].src = "./card_images/frontSrc2.jpg"
+            this.style.top = 412 + "px";
+            this.style.left = 0;
+            var card = $(this).position();
+            var className = this.id.slice(1);
+            var src = $(this).children().src;
+            socket.emit('dragged', card.left, card.top, className, src);
+            if (negIndex < 2) {
+              negIndex = 60;
+            }
+          }
+        });
+
+        socket.on('addCounter', function (counterText, moreText, id) {
+          var query = '#o' + id;
+          var card = $(query);
+          card.children().eq(1).text(counterText);
+          card[0].title = moreText;
+        });
+
+        $('.myCard').on('mousedown', function (event) {
+          if (event.which == 3) {
+            if (!event.ctrlKey) {
+              if ($(this).children()[0].src == fullUrl + "/mtg/card_images/frontSrc2.jpg") {
+                $(this).children()[0].src = "./card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg";
+              }
+              else {
+                $(this).children()[0].src = "./card_images/frontSrc2.jpg";
+              }
+              var card = $(this).position();
+              if (!((card.left >= 76 && card.left <= 345 && card.top >= 368 && card.top <= 412) || (card.left >= -12 && card.left <= 174 && card.top <= 220 && card.top >= -12))) {
+                var className = this.id.slice(1);
+                socket.emit('flipShowCard', className, $(this).children()[0].src);
+              }
+              event.preventDefault();
+            }
+            else {
+              if (event.ctrlKey) {
+                if ($(this)[0].style.transform == "rotate(90deg)") {
+                  $(this).css("transform", "rotate(0deg)");
+                  var tapTog = true;
+                }
+                else {
+                  $(this).css("transform", "rotate(90deg)");
+                  var tapTog = false;
+                }
+                var className = this.id.slice(1);
                 socket.emit('tapped', className, tapTog);
               }
             }
-          });
-          index += 120;
-          var timeStamp = getTimeStamp();
-          var action = 'Shuffled at';
-          socket.emit("log", timeStamp, action);
-          logHandler(timeStamp, action);
-        });
-
-        socket.on('log', function(timeStamp, action){
-          var li = elt('li', (action + timeStamp));
-          li.style.color = "#2C83E2";
-          li.style.textAlign = "left";
-          $('#logroom').append(li);
-          $('#logroom')[0].scrollTop = $('#logroom')[0].scrollHeight - $('#logroom')[0].clientHeight;
-        });
-
-        $('#token').click(function(){
-          powerTough = window.prompt("Token's power/toughness:", powerTough);
-          tokenText = window.prompt("Put token's colors, types, and abilities", tokenText);
-          var token = elt("div", powerTough);
-          token.className += ('token');
-          token.title = tokenText;
-          token.id = ('m' + ++myCardCount);
-          color1 = randomColor();
-          color2 = randomColor();
-          color3 = randomColor();
-          angle = Math.floor(Math.random()*90);
-          token.style.background = color1;
-          token.style.background = "-webkit-linear-gradient(to top, " + color1 + ", " + color2 + ", " + color3 + ")";
-          token.style.background = "linear-gradient(" + angle + "deg, " + color1 + ", " + color2 + ", " + color3 + ")";
-          socket.emit('createToken', powerTough, tokenText, myCardCount, color1, color2, color3, angle);
-          $('.board').append(token);
-          $(token).draggable({
-            stop: function(){
-              var card = $(this).position();
-              var thisCopy = this.id.slice(1);
-              if(card.left < 24 && card.left > -24 && card.top < 344 && card.top > 296){
-                $(this).off();
-                socket.emit('destroyToken', this.id.slice(1));
-                myCardCount--;
-                this.remove();
-              }
-              else
-              socket.emit('dragged', card.left, card.top, thisCopy, undefined);
-            }
-          });
-          $(token).on('mousedown', function(event){
-            if(event.ctrlKey){
-              if($(this)[0].style.transform == "rotate(90deg)"){
-                $(this).css("transform","rotate(0deg)");
-                var tapTog = true;
-              }
-              else{
-                $(this).css("transform","rotate(90deg)");
-                var tapTog = false;
-              }
-              var className = this.id.slice(1);
-              socket.emit('tapped', className, tapTog);
-            }
-          });
-        });
-
-        socket.on('destroyToken', function(id){
-          var query = '#o' + id;
-          $(query).remove();
-        });
-
-        socket.on('createToken', function(powerTough, tokenText, myCardCount, color1, color2, color3, angle){
-          var token = elt("div", powerTough);
-          token.className += ('token');
-          token.title = tokenText;
-          token.id = ('o' + myCardCount);
-          opponentCardCount++;
-          token.style.background = color1;
-          token.style.background = "-webkit-linear-gradient(to top, " + color1 + ", " + color2 + ", " + color3 + ")";
-          token.style.background = "linear-gradient(" + angle + "deg, " + color1 + ", " + color2 + ", " + color3 + ")";
-          $('.board').append(token);
-        });
-
-        $('#search').click(function(){
-          if(toggle){
-            length = 0;
-            rightCounter = 0;
-            lowestCard = [];
-            toggle = !toggle;
-            $('.myCard').off('mousedown');
-            $('.myCard').off('mouseover');
-            $(".myCard").draggable("destroy");
-            var timeStamp = getTimeStamp();
-            var action = "Began Searching Deck at ";
-            socket.emit('log', timeStamp, action);
-            logHandler(timeStamp, action);
-            $('.card').each(function(){
-              var card = $(this).position();
-              if(card.left >= -19 && card.left <= 30 && card.top >= 379 && card.top <= 429){
-                searchDeck.call(this);
-              }
-              //else if(card.left >= -19 && card.left <= 30 && card.top >= 379 && card.top <= 429){
-
-              //}
-            });
-          }
-          else{
-            toggle = !toggle;
-            $('#shuffle').click();
-            $('.myCard').children().each(function(_,element){element.innerHTML = '';});
-            $('.myCard.card').off('mouseover');
-            //go thru every index of choiceArray. case statement the modulo value, if 1 goes to battlefield, if 2 goes to hand, if 3 goes on bottom of deck, on 0 break;
-            choiceArray.forEach(function(choice, index){
-              switch(choice%4){
-                case 0:
-                  break;
-                case 1:
-                  var x = cardArray[index];
-                  x.style.top = 138 + "px";
-                  x.style.left = 240 + "px";
-                  var className = x.id.slice(1);
-                  var src = "./card_images/" + $(x).children().data("set_id") + "/" + $(x).children().data("card_id") + ".jpg";
-                  socket.emit('flipShowCard', className, src);
-                  var card = $(x).position();
-                  socket.emit('dragged', card.left, card.top, className, src);
-                  break;
-                case 2:
-                  var x = cardArray[index];
-                  x.style.top = 400 + "px";
-                  x.style.left = 160 + "px";
-                  x.children[0].style.display = "initial"; 
-                  var thisCopy = x.id.slice(1);
-                  socket.emit('dragged', 160, 400, thisCopy, false);
-                  break;
-                case 3:
-                  var x = cardArray[index];
-                  x.style.zIndex = --negIndex;
-                  if(negIndex < 2){
-                    negIndex = 60;
-                  }
-                  break;
-              }
-            });
-            restoreHandlers(fullUrl);
-            for(var inc = 0; inc < 120; inc++){
-              choiceArray[inc] = 0;
-            }
-            cardArray = [];
-          }
-        });
-               
-        socket.on('dragged', function(left, top, id, src){
-          var query = '#o' + id;
-          document.querySelector(query).style.top = "auto";
-          document.querySelector(query).style.left = "auto";
-          document.querySelector(query).style.bottom = top + "px";
-          document.querySelector(query).style.right = left + "px";
-          document.querySelector(query).style.zIndex = index++;
-          if($(query).children()[0]){
-            if(src){
-              $(query).children()[0].src = src;
-            }
-            else if(src !== undefined){
-              $(query).children()[0].src = './card_images/frontSrc.jpg';
-            }
           }
         });
 
-        socket.on('tapped', function(id, tapCur){
-          var query = '#o' + id;
-          if(tapCur){
-            document.querySelector(query).style.transform = "rotate(0deg)";
+        $('.myCard').mouseover(function () {
+          if ($(this).children()[0].src == fullUrl + '/mtg/card_images/frontSrc2.jpg') {
+            $('.mag').attr("src", "./card_images/frontSrc2.jpg");
           }
-          else{
-            document.querySelector(query).style.transform = "rotate(90deg)";
+          else {
+            $('.mag').attr("src", "./card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg");
           }
         });
 
-        socket.on('flipShowCard', function(id, src){
-          var query = '#o' + id;
-          $(query).children()[0].src = src;
-          $(query)[0].style.zIndex = index++;
-        });
+      });//end 'given deck' event handler
 
-        socket.on('given opponent', function(JSON){
-          for(opponentCardCount; opponentCardCount < JSON.length; opponentCardCount++){
-            createCard(JSON[opponentCardCount], false, opponentCardCount);
-          }
-          $('.theirCard').mouseenter(function(){
+      //Functions:
 
-                $('.mag').attr("src", $(this).children()[0].src);
-
-          });
-          $('#shuffle, #search, #builder, #myHealth, #theirHealth, #token, #apod, #background-desc').each(function(_, element){element.style.display="inline"});
-          $('#help').css("bottom", "192px");
-          $('#help').css("left", "15px");
-        });
-
-          //begin 'given deck' event handler
-          socket.on('given deck', function(deck){
-            
-            var counterText = "2/3";
-            var moreText = "Flying 3 Charge Counters";
-
-            for(myCardCount; myCardCount < deck.length; myCardCount++){
-              createCard(deck[myCardCount], true, myCardCount);
-            }
-                                                                
-            $(".myCard").draggable({
-              stop: function(){
-                var card = $(this).position();
-                var src = undefined;
-
-                if((startCardPos.left >= -16 && startCardPos.left <= 34 && startCardPos.top >= 379 && startCardPos.top <= 427) && !(card.left >= -16 && card.left <= 34 && card.top >= 379 && card.top <= 427)){
-                  action = "Drew Card From Deck at ";
-                  timeStamp = getTimeStamp();
-                  socket.emit('log', timeStamp, action);
-                  logHandler(timeStamp, action);
-                }
-                if((startCardPos.left <= 24 && startCardPos.left >= -24 && startCardPos.top <= 344 && startCardPos.top >= 296) && !(card.left <= 24 && card.left >= -24 && card.top <= 344 && card.top >= 296)){
-                  var cardName = $(this).children().data('cardName');
-                  action = cardName + " Retrieved From Grave at "; 
-                  timeStamp = getTimeStamp();
-                  socket.emit('log', timeStamp, action);
-                  logHandler(timeStamp, action);
-                }
-                $(this).css("zIndex",index++);
-                if(!((card.left >= 70 && card.left <= 345 && card.top >= 356 && card.top <= 432) || (card.left >= -12 && card.left <= 174 && card.top <= 220 && card.top >= -12) || (card.left >= -16 && card.left <= 34 && card.top >= 379 && card.top <= 427))){
-                  if($(this).children()[0].src == fullUrl + "/mtg/card_images/frontSrc2.jpg"){
-                    $(this).children()[0].src = "./card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg";
-                  }
-                  var className = this.id.slice(1);
-                  var src = "./card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg";
-                  socket.emit('flipShowCard', className, src);
-                }
-                //debounce (trailing) this too
-                if(card.left < 24 && card.left > -24 && card.top < 344 && card.top > 296){
-                  var timeStamp = getTimeStamp();
-                  var cardName = $(this).children().data('cardName');
-                  var action = cardName + ' Discarded at '
-                  socket.emit('log', timeStamp, action);
-                  logHandler(timeStamp, action);
-                }
-                var id = this.id.slice(1);
-                socket.emit('dragged', card.left, card.top, id, src);
-              },
-              start: function(){
-                startCardPos = $(this).position();
-              }
-            });
-
-            $('.myCard').on('dblclick', function(event){
-              if(!event.ctrlKey){
-                counterText = window.prompt("Power/Toughness:", counterText);
-                moreText = window.prompt("Other Text to add to Card", moreText);
-                $(this).children().eq(1).text(counterText);
-                this.title = moreText;
-                var id = this.id.slice(1);
-                socket.emit('addCounter', counterText, moreText, id);
-              }
-              else{
-                this.style.zIndex = --negIndex;
-                $(this).children()[0].src = "./card_images/frontSrc2.jpg"
-                this.style.top = 412 + "px";
-                this.style.left = 0;
-                var card = $(this).position();
-                var className = this.id.slice(1);
-                var src = $(this).children().src;
-                socket.emit('dragged', card.left, card.top, className, src);
-                if(negIndex < 2){
-                  negIndex = 60;
-                }
-              }
-            });
-
-            socket.on('addCounter', function(counterText, moreText, id){
-              var query = '#o' + id;
-              var card = $(query);
-              card.children().eq(1).text(counterText);
-              card[0].title = moreText;
-            });
-
-            $('.myCard').on('mousedown', function(event){
-              if(event.which == 3){
-                if(!event.ctrlKey){ 
-                  if($(this).children()[0].src == fullUrl + "/mtg/card_images/frontSrc2.jpg"){
-                    $(this).children()[0].src = "./card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg";
-                  }
-                  else{
-                    $(this).children()[0].src = "./card_images/frontSrc2.jpg";
-                  }
-                  var card = $(this).position();
-                  if(!((card.left >= 76 && card.left <= 345 && card.top >= 368 && card.top <= 412) || (card.left >= -12 && card.left <= 174 && card.top <= 220 && card.top >= -12))){
-                    var className = this.id.slice(1);
-                    socket.emit('flipShowCard', className, $(this).children()[0].src);
-                  }
-                  event.preventDefault();
-                }
-                else{
-                  if(event.ctrlKey){
-                    if($(this)[0].style.transform == "rotate(90deg)"){
-                      $(this).css("transform","rotate(0deg)");
-                      var tapTog = true;
-                    }
-                    else{
-                      $(this).css("transform","rotate(90deg)");
-                      var tapTog = false;
-                    }
-                    var className = this.id.slice(1);
-                    socket.emit('tapped', className, tapTog);
-                  }
-                }
-              }
-            });
-
-            $('.myCard').mouseover(function(){
-              if($(this).children()[0].src == fullUrl + '/mtg/card_images/frontSrc2.jpg'){
-                $('.mag').attr("src", "./card_images/frontSrc2.jpg");
-              }
-              else{
-                $('.mag').attr("src", "./card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg");
-              }
-            });
-
-          });//end 'given deck' event handler
-
-        //Functions:
-
-        function createCard(card, whose, inc){
-          var span = document.createElement('span');
-          var img = document.createElement('img');         
-          span.appendChild(img);
-          var indicator = document.createElement("p");
-          span.appendChild(indicator);
-          if(whose){
-            span.className += (' myCard card');
-            span.id = ('m' + inc);
-            span.style.zIndex = 60;
-            img.setAttribute('src', './card_images/frontSrc2.jpg');
-            $(img).data('cardName', card.name);
-            $(img).data('set_id', card.set_id);
-            $(img).data('card_id', card.card_id);
-          }
-          else{
-            span.className += (' theirCard card');
-            span.id = ('o' + inc);
-            img.setAttribute('src', './card_images/frontSrc.jpg');
-            $(img).data('set_id', card.set_id);
-            $(img).data('card_id', card.card_id);
-          }
-          $('.board').append(span);
+      function createCard(card, whose, inc) {
+        var span = document.createElement('span');
+        var img = document.createElement('img');
+        span.appendChild(img);
+        var indicator = document.createElement("p");
+        span.appendChild(indicator);
+        if (whose) {
+          span.className += (' myCard card');
+          span.id = ('m' + inc);
+          span.style.zIndex = 60;
+          img.setAttribute('src', './card_images/frontSrc2.jpg');
+          $(img).data('cardName', card.name);
+          $(img).data('set_id', card.set_id);
+          $(img).data('card_id', card.card_id);
         }
-
-        function helpTriggerMouse(focCard){
-          div = elt("div");
-          div.className = "triggered";                                 
-          focCard.appendChild(div);
-          return div;
+        else {
+          span.className += (' theirCard card');
+          span.id = ('o' + inc);
+          img.setAttribute('src', './card_images/frontSrc.jpg');
+          $(img).data('set_id', card.set_id);
+          $(img).data('card_id', card.card_id);
         }
-
-        //called on every card in the deck zone when 'search' is pressed
-        var searchDeck = function(){
-          length++;
-          $(this).on('mouseover', _.debounce(function(event){
-            if($(this).children()[0].src == fullUrl + "/mtg/card_images/frontSrc2.jpg"){//if back of card, show front
-              $(this).children()[0].src = "./card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg";
-            }
-            $(this).attr('tabindex', 0);
-            $(this).focus();
-            var src = $(this).children()[0].src;
-            $('.mag').attr("src", src);
-
-            $('body').one('keydown', function(event){
-              var focCard = document.activeElement;
-              var div = helpTriggerMouse(focCard);
-              switch(event.keyCode){
-                case 37://left
-                  if(rightCounter > 0){
-                    lowestCard.pop().style.zIndex = ++index;
-                    rightCounter--;
-                  }
-                  break;
-                case 39://right                   
-                  if(rightCounter < length - 1){
-                    rightCounter++;
-                    lowestCard.push(focCard);
-                    focCard.style.zIndex = --negIndex; 
-                  }
-                  break;
-                case 40://down
-                  cardArray[rightCounter] = focCard;     
-                  choiceArray[rightCounter] += 1;
-                  switch(choiceArray[rightCounter]%4){
-                    case 0:
-                      focCard.children[1].innerHTML = "";
-                      break;
-                    case 1:
-                      focCard.children[1].innerHTML = "Field";
-                      break;
-                    case 2:
-                      focCard.children[1].innerHTML = "Hand";
-                      break;
-                    case 3:
-                      focCard.children[1].innerHTML = "Bottom";                         
-                      break;
-                    default:
-                  }
-                  $('body').off('keydown');
-                  event.preventDefault();   
-                  break;
-                default:
-              }
-              setTimeout(function(){div.parentNode.removeChild(div);}, 700);
-            });
-          },500,true));
-        }
-      });//end window object load event handler
-
-      var getShadowColor = function(){
-          if(this.id == "myHealth")
-          return "rgba(180, 30, 30, 1)";
-          else return "rgba(30, 61, 117, 1)";
+        $('.board').append(span);
       }
 
-      function showSpeak(){
-        $('#speak')[0].style.display = "inline";
+      function helpTriggerMouse(focCard) {
+        div = elt("div");
+        div.className = "triggered";
+        focCard.appendChild(div);
+        return div;
       }
 
-      function randomColor() {
-        var letters = '0123456789ABCDEF';
-        var color = '#';
-        for(var i = 0; i < 6; i++){
-          color += letters[Math.floor(Math.random() * 16)];
-        }
-        return color;
-      }
+      //called on every card in the deck zone when 'search' is pressed
+      var searchDeck = function () {
+        length++;
+        $(this).on('mouseover', _.debounce(function (event) {
+          if ($(this).children()[0].src == fullUrl + "/mtg/card_images/frontSrc2.jpg") {//if back of card, show front
+            $(this).children()[0].src = "./card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg";
+          }
+          $(this).attr('tabindex', 0);
+          $(this).focus();
+          var src = $(this).children()[0].src;
+          $('.mag').attr("src", src);
 
-      function logHandler(timeStamp, action){
-        socket.on('log', timeStamp, action)
-        var li = elt('li', (action + timeStamp));
-        li.style.color = "#F02828";
-        $('#logroom').append(li);
-        $('#logroom')[0].scrollTop = $('#logroom')[0].scrollHeight - $('#logroom')[0].clientHeight;
+          $('body').one('keydown', function (event) {
+            var focCard = document.activeElement;
+            var div = helpTriggerMouse(focCard);
+            switch (event.keyCode) {
+              case 37://left
+                if (rightCounter > 0) {
+                  lowestCard.pop().style.zIndex = ++index;
+                  rightCounter--;
+                }
+                break;
+              case 39://right                   
+                if (rightCounter < length - 1) {
+                  rightCounter++;
+                  lowestCard.push(focCard);
+                  focCard.style.zIndex = --negIndex;
+                }
+                break;
+              case 40://down
+                cardArray[rightCounter] = focCard;
+                choiceArray[rightCounter] += 1;
+                switch (choiceArray[rightCounter] % 4) {
+                  case 0:
+                    focCard.children[1].innerHTML = "";
+                    break;
+                  case 1:
+                    focCard.children[1].innerHTML = "Field";
+                    break;
+                  case 2:
+                    focCard.children[1].innerHTML = "Hand";
+                    break;
+                  case 3:
+                    focCard.children[1].innerHTML = "Bottom";
+                    break;
+                  default:
+                }
+                $('body').off('keydown');
+                event.preventDefault();
+                break;
+              default:
+            }
+            setTimeout(function () { div.parentNode.removeChild(div); }, 700);
+          });
+        }, 500, true));
       }
+    });//end window object load event handler
 
-    </script>
-  </body>
+    var getShadowColor = function () {
+      if (this.id == "myHealth")
+        return "rgba(180, 30, 30, 1)";
+      else return "rgba(30, 61, 117, 1)";
+    }
+
+    function showSpeak() {
+      $('#speak')[0].style.display = "inline";
+    }
+
+    function randomColor() {
+      var letters = '0123456789ABCDEF';
+      var color = '#';
+      for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+      }
+      return color;
+    }
+
+    function logHandler(timeStamp, action) {
+      socket.on('log', timeStamp, action)
+      var li = elt('li', (action + timeStamp));
+      li.style.color = "#F02828";
+      $('#logroom').append(li);
+      $('#logroom')[0].scrollTop = $('#logroom')[0].scrollHeight - $('#logroom')[0].clientHeight;
+    }
+
+  </script>
+</body>
+
 </html>
