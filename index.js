@@ -2,6 +2,7 @@
 var express = require('express');
 var fs = require('fs');
 var app = express();
+//var cookieParser = require('cookie-parser');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var shuffle = require('shuffle-array');
@@ -11,6 +12,7 @@ var { window } = new JSDOM(`<!DOCTYPE html>`);
 var $ = require('jquery')(window);
 var mysql = require('mysql');
 const dotenv = require('dotenv').config();
+var PHPUnserialize = require('php-serialize');
 
 //Global variable used to map sockets to clients
 var clients = [];
@@ -28,11 +30,16 @@ con.connect(function (err) {
   if (err) console.log("ERROR while Connecting to MySQL");
 });
 
+con.on('error', function (err) {
+  console.log("MySQL connection err");
+});
+
 //This keeps the MySQL connection open until the server closes
 setInterval(function () {
   con.query('SELECT 1');
 }, 1000 * 60 * 60);
 
+//app.use(cookieParser());
 app.use(express.static('media'));		//Get requests for static files start in the 'media' directory of mtg folder
 
 app.get('/game', function (req, res) {
@@ -48,6 +55,18 @@ app.get('/builder', function (req, res) {
 var game_nsp = io.of('/game');
 
 game_nsp.on('connection', function (socket) {
+
+  //on connection query the db using req.cookies PHPSESSID property
+
+  function str_obj(str) {
+    str = str.split('; ');
+    var result = {};
+    for (var i = 0; i < str.length; i++) {
+      var cur = str[i].split('=');
+      result[cur[0]] = cur[1];
+    }
+    return result; //can minimize if never figure use for other cookie params
+  }
 
   console.log(++count + " Players Connected to Server");
 
@@ -74,14 +93,30 @@ game_nsp.on('connection', function (socket) {
       var url = data.url;
       var desc = data.explanation;
       socket.emit('background', url, desc);
-    });
+    }); 
   });
 
-  socket.on('get deck options', function () {
-    con.query("SELECT name FROM `decks` WHERE globalBool = 1 & published = 1", function (err, result, _fields) {
-      var options = JSON.parse(JSON.stringify(result));
-      socket.emit('give deck options', options);
-    });
+
+  socket.on('get deck options', function (serialized_id) {
+    if (serialized_id) {
+      var id = str_obj(serialized_id)['PHPSESSID'],
+        queryStr = "SELECT data FROM sessions WHERE id = '" + id + "' AND data IS NOT NULL";
+      con.query(queryStr, function (err, result, _fields) {
+        if (result[0] && result[0].data) { 
+          var serializedUser = result[0].data.substr(5);
+          var user = PHPUnserialize.unserialize(serializedUser);
+          con.query("SELECT user, admin FROM members WHERE user = '" + user + "'", function (err, result, _fields) {
+            con.query("SELECT name FROM decks WHERE owner = '" + user + "'", function (err, result, _fields) {
+              var options = JSON.parse(JSON.stringify(result));
+              socket.emit('give deck options', options);
+            });
+          });
+        }
+        else {
+          socket.emit('give deck options', null);
+        }
+      });
+    }
   });
 
   socket.on('log', function (timeStamp, action) {
@@ -281,8 +316,8 @@ db_nsp.on('connection', function (socket) {
 });
 //end of deck builder namespace connection event handler
 
-http.listen(88, function () {
-  console.log('Node web server listening on *:88');
+http.listen(89, function () {
+  console.log('Node web server listening on *:89');
 });
 
 //Global Functions
