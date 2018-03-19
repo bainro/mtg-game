@@ -1,9 +1,5 @@
 socket.on('give deck options', function (options) {
     var tempItem;
-    if (options === null) {
-        //toggle modal
-        //$('#login_modal').modal('show');
-    }
     for (var i = 0; i < options.length; i++) {
         tempItem = $("<option>", { class: "deck-select", text: options[i].name });
         $('.deckOptions').append(tempItem);
@@ -58,6 +54,8 @@ socket.on('given deck', function (deck) {
     }
 
     $(".myCard").draggable({
+        containment: "window",
+        scroll: false,
         stop: function () {
             var card = $(this).position();
             var src = undefined;

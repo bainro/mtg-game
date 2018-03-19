@@ -4,8 +4,6 @@
 <head>
   <title>Magic The Gathering</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' integrity='sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u'
-    crossorigin='anonymous'>
   <link rel="stylesheet" href="css/styles.css">
   <link rel="icon" href="favicon/favicon.ico" type="image/x-icon" />
 </head>
@@ -59,7 +57,6 @@
           <br>
           <a href="https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/NASA_Unveils_Celestial_Fireworks_as_Official_Hubble_25th_Anniversary_Image.jpg/1024px-NASA_Unveils_Celestial_Fireworks_as_Official_Hubble_25th_Anniversary_Image.jpg"
             target="_blank">View Full Image</a>
-
         </p>
         <div id="myHealth" class="push-button-red">
           20
@@ -87,7 +84,7 @@
   </div>
 
   <div id="background-div">
-    <img id="background-img" src="../images/dark_wood.jpg">
+    <img id="background-img" src="./images/dark_wood.jpg">
   </div>
 
   <script src="./socket.io/socket.io.js"></script>
@@ -101,7 +98,7 @@
   <script type="text/javascript" src="./javascript/functions.js"></script>
 
   <script>
-    var socket = io('localhost:89/game'); /*http://67.160.162.82:89/game*/
+    var socket = io('http://67.160.162.82:89/game'); /*localhost:89/game*/
   </script>
 
   <script type="text/javascript" src="./javascript/socket.js"></script>
@@ -262,6 +259,8 @@
         socket.emit('createToken', powerTough, tokenText, myCardCount, color1, color2, color3, angle);
         $('.board').append(token);
         $(token).draggable({
+          containment: "window",
+          scroll: false,
           stop: function () {
             var card = $(this).position();
             var thisCopy = this.id.slice(1);

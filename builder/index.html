@@ -159,6 +159,9 @@
 	<script>
 		var socket = io('/builder');
 
+		var cookieYum = String(document.cookie);
+		socket.emit('get deck options', cookieYum);
+
 		function cardQuery(event) {
 			event.preventDefault();
 			var cardName = $('#card-name').val();
@@ -197,7 +200,7 @@
 
 		$('#newModal').on('show.bs.modal', function (event) {
 			$('#confirm-new').on('click', function (event) {
-				socket.emit('create new deck', $('#new-input').val().trim());
+				socket.emit('create new deck', $('#new-input').val().trim(), cookieYum);
 				$("#confirm-del").removeAttr("disabled");
 			});
 		});
@@ -266,8 +269,6 @@
 			//update deck_data on <ul>
 			$('#cards-in-deck').attr('data_deck', new_name);
 		});
-
-		socket.emit('get deck options');
 
 		socket.on('give deck options', function (options) {
 			var tempItem;

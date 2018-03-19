@@ -184,6 +184,8 @@ function restoreHandlers(fullURL) {
   });
 
   $(".myCard").draggable({
+    containment: "window",
+    scroll: false,
     stop: function () {
       var card = $(this).position();
       var src = undefined;

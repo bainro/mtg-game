@@ -55,6 +55,9 @@ body {
   -ms-user-select: none;
   user-select: none; }
 
+button, input, optgroup, select, textarea {
+  font: inherit; }
+
 #speak {
   position: absolute;
   bottom: 0;
@@ -147,12 +150,12 @@ body {
     right: 77px;
     height: 27px;
     width: 72px;
-    background-image: url(../images/fantasy_button_normal.jpg);
+    background-image: url("../images/fantasy_button_normal.jpg");
     background-size: contain; }
     #chooseDeck input:hover {
-      background-image: url(../images/fantasy_button_hover.jpg); }
+      background-image: url("../images/fantasy_button_hover.jpg"); }
     #chooseDeck input:active {
-      background-image: url(../images/fantasy_button_pressed.jpg); }
+      background-image: url("../images/fantasy_button_pressed.jpg"); }
   #chooseDeck select {
     cursor: pointer;
     border-radius: 5px;
@@ -303,7 +306,7 @@ img {
   z-index: 2;
   background-color: rgba(40, 40, 40, 0.79);
   padding: 0;
-  background-image: url(../images/glass_streaks.png); }
+  background-image: url("../images/glass_streaks.png"); }
 
 .hand-zone {
   height: 132px;
@@ -317,7 +320,7 @@ img {
   border: 1px solid black;
   border-radius: 20px;
   background-color: rgba(204, 9, 9, 0.75);
-  background-image: url(http://localhost:89/images/glass_streaks.png);
+  background-image: url("../images/glass_streaks.png");
   background-size: cover; }
 
 .hand-zone-oppo {
@@ -333,7 +336,7 @@ img {
   border: 1px solid black;
   border-radius: 20px;
   background-color: rgba(15, 31, 153, 0.57);
-  background-image: url(http://localhost:89/images/glass_streaks_180.png);
+  background-image: url("../images/glass_streaks_180.png");
   background-size: cover; }
 
 .card {
@@ -560,6 +563,7 @@ img {
   height: 100%; }
 
 #background-div {
+  overflow: hidden;
   width: 100%;
   height: 100%;
   position: absolute;

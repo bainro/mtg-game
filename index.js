@@ -2,7 +2,7 @@
 var express = require('express');
 var fs = require('fs');
 var app = express();
-//var cookieParser = require('cookie-parser');
+var cookieParser = require('cookie-parser');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var shuffle = require('shuffle-array');
@@ -12,7 +12,6 @@ var { window } = new JSDOM(`<!DOCTYPE html>`);
 var $ = require('jquery')(window);
 var mysql = require('mysql');
 const dotenv = require('dotenv').config();
-var PHPUnserialize = require('php-serialize');
 
 //Global variable used to map sockets to clients
 var clients = [];
@@ -31,7 +30,7 @@ con.connect(function (err) {
 });
 
 con.on('error', function (err) {
-  console.log("MySQL connection err");
+  console.log("MySQL err caught: ", err);
 });
 
 //This keeps the MySQL connection open until the server closes
@@ -39,7 +38,7 @@ setInterval(function () {
   con.query('SELECT 1');
 }, 1000 * 60 * 60);
 
-//app.use(cookieParser());
+app.use(cookieParser());
 app.use(express.static('media'));		//Get requests for static files start in the 'media' directory of mtg folder
 
 app.get('/game', function (req, res) {
@@ -47,26 +46,22 @@ app.get('/game', function (req, res) {
 });
 
 app.get('/builder', function (req, res) {
-  res.sendFile(__dirname + '/builder/index.html');
+  if (req.cookies['PHPSESSID']) { var id = req.cookies['PHPSESSID']; }
+  else { res.redirect('http://rkbain.com/mtg_training_guild/login_builder.php'); return; }
+  con.query("SELECT data FROM sessions WHERE id = '" + id + "' AND data IS NOT NULL", function (err, result, _fields) {
+    if (result[0] && result[0].data) {
+      res.sendFile(__dirname + '/builder/index.html');
+    }
+    else { res.redirect('http://rkbain.com/mtg_training_guild/login_builder.php'); }
+  });
 });
 
-//begin on connection event handler for the game namespace
-
+/*
+begin on connection event handler for the game namespace
+*/
 var game_nsp = io.of('/game');
 
 game_nsp.on('connection', function (socket) {
-
-  //on connection query the db using req.cookies PHPSESSID property
-
-  function str_obj(str) {
-    str = str.split('; ');
-    var result = {};
-    for (var i = 0; i < str.length; i++) {
-      var cur = str[i].split('=');
-      result[cur[0]] = cur[1];
-    }
-    return result; //can minimize if never figure use for other cookie params
-  }
 
   console.log(++count + " Players Connected to Server");
 
@@ -93,7 +88,7 @@ game_nsp.on('connection', function (socket) {
       var url = data.url;
       var desc = data.explanation;
       socket.emit('background', url, desc);
-    }); 
+    });
   });
 
 
@@ -102,19 +97,25 @@ game_nsp.on('connection', function (socket) {
       var id = str_obj(serialized_id)['PHPSESSID'],
         queryStr = "SELECT data FROM sessions WHERE id = '" + id + "' AND data IS NOT NULL";
       con.query(queryStr, function (err, result, _fields) {
-        if (result[0] && result[0].data) { 
-          var serializedUser = result[0].data.substr(5);
-          var user = PHPUnserialize.unserialize(serializedUser);
-          con.query("SELECT user, admin FROM members WHERE user = '" + user + "'", function (err, result, _fields) {
-            con.query("SELECT name FROM decks WHERE owner = '" + user + "'", function (err, result, _fields) {
-              var options = JSON.parse(JSON.stringify(result));
-              socket.emit('give deck options', options);
-            });
+        if (result[0] && result[0].data) {
+          var user = result[0].data.split('"')[1];
+          con.query("SELECT name, owner FROM decks ORDER BY owner = '" + user + "' DESC", function (err, result, _fields) {
+            var options = JSON.parse(JSON.stringify(result));
+            socket.emit('give deck options', options);
           });
         }
         else {
-          socket.emit('give deck options', null);
+          con.query("SELECT name FROM decks", function (err, result, _fields) {
+            var options = JSON.parse(JSON.stringify(result));
+            socket.emit('give deck options', options);
+          });
         }
+      });
+    }
+    else {
+      con.query("SELECT name FROM decks", function (err, result, _fields) {
+        var options = JSON.parse(JSON.stringify(result));
+        socket.emit('give deck options', options);
       });
     }
   });
@@ -161,11 +162,12 @@ game_nsp.on('connection', function (socket) {
   });
 
 });
-//end on connection event handler for game namespace
+//end of connection event handler for game namespace
 
 
-//socket event handlers for the deck builder namespace
-
+/*
+socket event handlers for the deck builder namespace
+*/
 var db_nsp = io.of('/builder');
 
 db_nsp.on('connection', function (socket) {
@@ -229,11 +231,27 @@ db_nsp.on('connection', function (socket) {
     socket.emit('given deck', deck, deckName);
   });
 
-  socket.on('get deck options', function () {
-    con.query("SELECT name FROM `decks` WHERE globalBool = 1 & published = 1", function (err, result, _fields) {
-      var options = JSON.parse(JSON.stringify(result));
-      socket.emit('give deck options', options);
-    });
+  socket.on('get deck options', function (serialized_id) {
+    if (serialized_id) {
+      var id = str_obj(serialized_id)['PHPSESSID'],
+        queryStr = "SELECT data FROM sessions WHERE id = '" + id + "' AND data IS NOT NULL";
+      con.query(queryStr, function (err, result, _fields) {
+        if (result[0] && result[0].data) {
+          var user = result[0].data.split('"')[1];
+          con.query("SELECT name FROM decks WHERE owner = '" + user + "'", function (err, result, _fields) {
+            var options = JSON.parse(JSON.stringify(result));
+            socket.emit('give deck options', options);
+          });
+        }
+        else { socket.emit('give deck options', null); }
+      });
+    }
+    else {
+      con.query("SELECT name FROM decks", function (err, result, _fields) {
+        var options = JSON.parse(JSON.stringify(result));
+        socket.emit('give deck options', options);
+      });
+    }
   });
 
   socket.on('delete deck', function (deck_name) {
@@ -247,34 +265,49 @@ db_nsp.on('connection', function (socket) {
     });
   });
 
-  socket.on('create new deck', function (deck_name) {
-    fs.open('./media/decks/' + deck_name + ".json", 'wx+', (err, fd) => {
-      if (err) {
-        console.log("error creating deck: " + deck_name + " on FS");
-        socket.emit('deck creation fail', "Writing to Server File System Failed. Check that the deck name does not already exist.");
-      }
-      else {
-        //var module_text = 'var deck = []; module.exports = deck;';
-        fs.write(fd, '[]', (err) => {
-          if (err) {
-            console.log(err);
-          }
-          fs.close(fd, () => { });
-        });
-        console.log("Deck: " + deck_name + " created successfully on FS");
-        //create deck in MySQL DB:
-        con.query("INSERT INTO `decks` (`name`, `published`, `owner`, `globalBool`) VALUES (?, '1', '1', '1')", deck_name, function (err, result, _fields) {
-          if (err) {
-            console.log("error while creating: " + deck_name + " in MySQL DB", err);
-            socket.emit('deck creation fail', 'Writing to the MySQL Database failed. :(');
-          }
-          else {
-            console.log(deck_name + ' created in MySQL DB!');
-            socket.emit('new deck created', deck_name);
-          }
-        });
-      }
-    });
+  socket.on('create new deck', function (deck_name, cookie_str) {
+
+    if (cookie_str) {
+      fs.open('./media/decks/' + deck_name + ".json", 'wx+', (err, fd) => {
+        if (err) {
+          console.log("error creating deck: " + deck_name + " on FS");
+          socket.emit('deck creation fail', "Writing to Server File System Failed. Check that the deck name does not already exist.");
+        }
+        else {
+          //var module_text = 'var deck = []; module.exports = deck;';
+          fs.write(fd, '[]', (err) => {
+            if (err) {
+              console.log(err);
+            }
+            fs.close(fd, () => { });
+          });
+          console.log("Deck: " + deck_name + " created successfully on FS");
+
+          //determine who the owner is
+          var id = str_obj(cookie_str)['PHPSESSID'],
+            queryStr = "SELECT data FROM sessions WHERE id = '" + id + "' AND data IS NOT NULL";
+          con.query(queryStr, function (err, result, _fields) {
+            if (result[0] && result[0].data) {
+              var user = result[0].data.split('"')[1];
+
+              //create deck in MySQL DB:
+              con.query("INSERT INTO `decks` (`name`, `owner`) VALUES (?, ?)", [deck_name, user], function (err, result, _fields) {
+                if (err) {
+                  console.log("error while creating: " + deck_name + " in MySQL DB", err);
+                  socket.emit('deck creation fail', 'Writing to the MySQL Database failed. :(');
+                }
+                else {
+                  console.log(deck_name + ' created in MySQL DB!');
+                  socket.emit('new deck created', deck_name);
+                }
+              });
+            }
+            else { socket.emit('deck creation fail', "Failed to verify your user account"); return; }
+          });
+        }
+      });
+    }
+    else { socket.emit('deck creation fail', "Failed to verify your user account"); }
   });
 
   socket.on('save deck', (deck_array, deck_name) => {
@@ -321,6 +354,17 @@ http.listen(89, function () {
 });
 
 //Global Functions
+
+//turns cookie string into json
+function str_obj(str) {
+  str = str.split('; ');
+  var result = {};
+  for (var i = 0; i < str.length; i++) {
+    var cur = str[i].split('=');
+    result[cur[0]] = cur[1];
+  }
+  return result; //can minimize if never figure use for other cookie params
+}
 
 function sendDecks() {
 
