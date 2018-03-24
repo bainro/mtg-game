@@ -1,24 +1,26 @@
 //require and instantiate dependencies
-var express = require('express');
-var fs = require('fs');
-var app = express();
-var cookieParser = require('cookie-parser');
-var http = require('http').Server(app);
+const express = require('express');
+const fs = require('fs');
+const app = express();
+const cookieParser = require('cookie-parser');
+const http = require('http').Server(app);
 var io = require('socket.io')(http);
-var shuffle = require('shuffle-array');
-var jsdom = require("jsdom");
-var { JSDOM } = jsdom;
-var { window } = new JSDOM(`<!DOCTYPE html>`);
-var $ = require('jquery')(window);
-var mysql = require('mysql');
+const shuffle = require('shuffle-array');
+const jsdom = require("jsdom");
+const { JSDOM } = jsdom;
+const { window } = new JSDOM(`<!DOCTYPE html>`);
+//only use jquery for get request... replacement: request
+const $ = require('jquery')(window);
+const mysql = require('mysql');
 const dotenv = require('dotenv').config();
+const fileUpload = require('express-fileupload');
 
 //Global variable used to map sockets to clients
 var clients = [];
-var count = 0;
+//var count = 0;
 
 //Connect to MySQL database
-var con = mysql.createConnection({
+const con = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
@@ -40,9 +42,20 @@ setInterval(function () {
 
 app.use(cookieParser());
 app.use(express.static('media'));		//Get requests for static files start in the 'media' directory of mtg folder
+app.use(fileUpload());
 
 app.get('/game', function (req, res) {
   res.sendFile(__dirname + '/game/index.html');
+});
+
+app.post('/builder', (req, res) => { 
+  let custom_back = req.files.custom_back_img;
+  custom_back.mv('./media/db_media/images/' + 'robrob' + '.jpg', (err) => {
+    if (err)
+      return res.send('File failed to upload! :(');
+
+    res.send('File uploaded! :)');
+  });
 });
 
 app.get('/builder', function (req, res) {
@@ -62,20 +75,22 @@ begin on connection event handler for the game namespace
 var game_nsp = io.of('/game');
 
 game_nsp.on('connection', function (socket) {
-
-  console.log(++count + " Players Connected to Server");
+  
+  console.log("Player Connected to Server");
 
   socket.on('dragged', function (left, top, id, src) {
     socket.broadcast.emit('dragged', left, top, id, src);
   });
 
   socket.on('deck chosen', function (id, deck) {
+    if (socket.custom_back) console.log('robrob chose a deck, bish');
     var client = {};
     client["id"] = socket.id;
     client["deck"] = deck;
     clients.push(client);
     if (clients.length == 2) {
       sendDecks();
+      clients = []; 
     }
   });
 
@@ -91,7 +106,6 @@ game_nsp.on('connection', function (socket) {
     });
   });
 
-
   socket.on('get deck options', function (serialized_id) {
     if (serialized_id) {
       var id = str_obj(serialized_id)['PHPSESSID'],
@@ -99,6 +113,8 @@ game_nsp.on('connection', function (socket) {
       con.query(queryStr, function (err, result, _fields) {
         if (result[0] && result[0].data) {
           var user = result[0].data.split('"')[1];
+          if (user = 'robrob') 
+            socket.custom_back = true; 
           con.query("SELECT name, owner FROM decks ORDER BY owner = '" + user + "' DESC", function (err, result, _fields) {
             var options = JSON.parse(JSON.stringify(result));
             socket.emit('give deck options', options);
@@ -137,12 +153,13 @@ game_nsp.on('connection', function (socket) {
   });
 
   socket.on('disconnect', function () {
-    for (var inc = 0; inc < clients.length; inc++) {
+    /*for (var inc = 0; inc < clients.length; inc++) {
       if (clients[inc].id == this.id) {
         clients.splice(inc, 1);
       }
     }
-    console.log(--count + " Players Connected to Server");
+    console.log(--count + " Players Connected to Server");*/
+    console.log('Player disconnected from server');
   });
 
   socket.on('tapped', function (id, tapCur) {
@@ -228,7 +245,7 @@ db_nsp.on('connection', function (socket) {
 
   socket.on('get deck', function (deckName) {
     var deck = JSON.parse(fs.readFileSync("./media/decks/" + deckName + ".json", 'utf8'));
-    socket.emit('given deck', deck, deckName);
+    socket.emit('given deck', deck);
   });
 
   socket.on('get deck options', function (serialized_id) {
@@ -238,6 +255,9 @@ db_nsp.on('connection', function (socket) {
       con.query(queryStr, function (err, result, _fields) {
         if (result[0] && result[0].data) {
           var user = result[0].data.split('"')[1];
+          if ( user === "robrob" ) {
+            socket.emit("robrob draft prize");
+          }
           con.query("SELECT name FROM decks WHERE owner = '" + user + "'", function (err, result, _fields) {
             var options = JSON.parse(JSON.stringify(result));
             socket.emit('give deck options', options);

@@ -167,6 +167,7 @@ socket.on('given deck', function (deck) {
 });//end 'given deck' event handler
 
 socket.on('dragged', function (left, top, id, src) {
+    console.log('LOL');
     var query = '#o' + id;
     document.querySelector(query).style.top = "auto";
     document.querySelector(query).style.left = "auto";
