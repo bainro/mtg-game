@@ -1,4 +1,5 @@
 socket.on('give deck options', function (options) {
+    $('.deckOptions, #deck-choice').css('display', 'inline');
     var tempItem;
     for (var i = 0; i < options.length; i++) {
         tempItem = $("<option>", { class: "deck-select", text: options[i].name });
@@ -31,7 +32,7 @@ socket.on("message", function (msg) {
     li.appendChild(document.createTextNode(msg));
     $('#chatroom').append(li);
     $('#chatroom')[0].scrollTop = $('#chatroom')[0].scrollHeight - $('#chatroom')[0].clientHeight;
-    if ( $('#chat')[0].style.display == 'none' ) {
+    if ($('#chat')[0].style.display == 'none') {
         $('#chat-anchor').addClass('new-message');
     }
 });
@@ -46,6 +47,11 @@ socket.on('addCounter', function (counterText, moreText, id) {
 //begin 'given deck' event handler
 socket.on('given deck', function (deck) {
 
+    $('#chooseDeck').eq(0).remove();
+
+    $('#shuffle, #search, #builder, #myHealth, #theirHealth, #token, #apod, #background-desc').each(function (_, element) { element.style.display = "inline" });
+    $('#help').removeClass('help-first').addClass('help-second');
+    
     var counterText = "2/3";
     var moreText = "Flying 3 Charge Counters";
 
@@ -63,14 +69,14 @@ socket.on('given deck', function (deck) {
             if ((startCardPos.left >= -16 && startCardPos.left <= 34 && startCardPos.top >= 379 && startCardPos.top <= 427) && !(card.left >= -16 && card.left <= 34 && card.top >= 379 && card.top <= 427)) {
                 action = "Drew Card From Deck at ";
                 timeStamp = getTimeStamp();
-                socket.emit('log', timeStamp, action);
+                socket.emit('log', timeStamp, action, opponent_socket);
                 logHandler(timeStamp, action);
             }
             if ((startCardPos.left <= 24 && startCardPos.left >= -24 && startCardPos.top <= 344 && startCardPos.top >= 296) && !(card.left <= 24 && card.left >= -24 && card.top <= 344 && card.top >= 296)) {
                 var cardName = $(this).children().data('cardName');
                 action = cardName + " Retrieved From Grave at ";
                 timeStamp = getTimeStamp();
-                socket.emit('log', timeStamp, action);
+                socket.emit('log', timeStamp, action, opponent_socket);
                 logHandler(timeStamp, action);
             }
             $(this).css("zIndex", index++);
@@ -80,18 +86,18 @@ socket.on('given deck', function (deck) {
                 }
                 var className = this.id.slice(1);
                 var src = "./card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg";
-                socket.emit('flipShowCard', className, src);
+                socket.emit('flipShowCard', className, src, opponent_socket);
             }
             //debounce (trailing) this too
             if (card.left < 24 && card.left > -24 && card.top < 344 && card.top > 296) {
                 var timeStamp = getTimeStamp();
                 var cardName = $(this).children().data('cardName');
                 var action = cardName + ' Discarded at '
-                socket.emit('log', timeStamp, action);
+                socket.emit('log', timeStamp, action, opponent_socket);
                 logHandler(timeStamp, action);
             }
             var id = this.id.slice(1);
-            socket.emit('dragged', card.left, card.top, id, src);
+            socket.emit('dragged', card.left, card.top, id, src, opponent_socket);
         },
         start: function () {
             startCardPos = $(this).position();
@@ -105,7 +111,7 @@ socket.on('given deck', function (deck) {
             $(this).children().eq(1).text(counterText);
             this.title = moreText;
             var id = this.id.slice(1);
-            socket.emit('addCounter', counterText, moreText, id);
+            socket.emit('addCounter', counterText, moreText, id, opponent_socket);
         }
         else {
             this.style.zIndex = --negIndex;
@@ -115,7 +121,7 @@ socket.on('given deck', function (deck) {
             var card = $(this).position();
             var id = this.id.slice(1);
             var src = $(this).children().src;
-            socket.emit('dragged', card.left, card.top, id, src);
+            socket.emit('dragged', card.left, card.top, id, src, opponent_socket);
             if (negIndex < 2) {
                 negIndex = 60;
             }
@@ -134,7 +140,7 @@ socket.on('given deck', function (deck) {
                 var card = $(this).position();
                 if (!((card.left >= 76 && card.left <= 345 && card.top >= 368 && card.top <= 412) || (card.left >= -12 && card.left <= 174 && card.top <= 220 && card.top >= -12))) {
                     var className = this.id.slice(1);
-                    socket.emit('flipShowCard', className, $(this).children()[0].src);
+                    socket.emit('flipShowCard', className, $(this).children()[0].src, opponent_socket);
                 }
                 event.preventDefault();
             }
@@ -149,7 +155,7 @@ socket.on('given deck', function (deck) {
                         var tapTog = false;
                     }
                     var className = this.id.slice(1);
-                    socket.emit('tapped', className, tapTog);
+                    socket.emit('tapped', className, tapTog, opponent_socket);
                 }
             }
         }
@@ -167,7 +173,7 @@ socket.on('given deck', function (deck) {
 });//end 'given deck' event handler
 
 socket.on('dragged', function (left, top, id, src) {
-    console.log('LOL');
+
     var query = '#o' + id;
     document.querySelector(query).style.top = "auto";
     document.querySelector(query).style.left = "auto";
@@ -209,8 +215,6 @@ socket.on('given opponent', function (JSON) {
         $('.mag').attr("src", $(this).children()[0].src);
     });
 
-    $('#shuffle, #search, #builder, #myHealth, #theirHealth, #token, #apod, #background-desc').each(function (_, element) { element.style.display = "inline" });
-    $('#help').removeClass('help-first').addClass('help-second');
 });
 
 socket.on('destroyToken', function (id) {
@@ -236,4 +240,46 @@ socket.on('log', function (timeStamp, action) {
     li.style.textAlign = "left";
     $('#logroom').append(li);
     $('#logroom')[0].scrollTop = $('#logroom')[0].scrollHeight - $('#logroom')[0].clientHeight;
+});
+
+//populate #available-games with options arg
+socket.on('available games', (options) => {
+
+    //if #available-games isn't part of the DOM anymore do nothing
+    //if it still is part of the DOM then remove all <li> from it (and the text div)
+    //and create a new (div and) <li>s from options 
+
+    if ( $('#available-games').length ) {
+
+        $('#available-games').empty();
+
+        options = options.filter(item => {
+            if (item.id !== socket.id) return true;
+            else return false;
+        });
+
+        $('#available-games').append($('<div style="color:white;font-size:1.1em;">' + (options.length ? "Pick game to enter:" : "Wait for others to join...") + '</div>'));
+
+        for (var i = 0; i < options.length; i++) {
+            var $li = $("<li>" + options[i].username + "</li>", {
+                class: "game-option",
+            }).data('socketID', options[i].id);
+
+            $li.on('click', function () {
+                socket.emit('game chosen', $(this).data('socketID'));
+            })
+
+            $('#available-games').append($li);
+
+        }
+    }
+});
+
+socket.on('given other player', socketID => {
+    //save the socketID
+    opponent_socket = socketID;
+    //remove #available games
+    $('#available-games').remove();
+    //emit get options socket event
+    socket.emit('get deck options');
 });

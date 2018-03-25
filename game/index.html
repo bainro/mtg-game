@@ -35,11 +35,14 @@
         </li>
       </ul>
       <div id="tools">
+        <ul id="available-games">
+          <!-- Populated with socket data -->
+        </ul>
         <form id="chooseDeck">
           <select class="deckOptions">
             <!-- Populated via JS -->
           </select>
-          <input type='submit' value="">
+          <input id="deck-choice" type='submit' value="">
         </form>
         <input id='shuffle' type='button' value="Shuffle">
         <input id='search' type='button' value="Search">
@@ -98,7 +101,20 @@
   <script type="text/javascript" src="./javascript/functions.js"></script>
 
   <script>
-    var socket = io('localhost:89/game'); /*http://67.160.162.82:89/game*/
+    //parse cookie data into JSON
+    function str_obj(str) {
+      str = str.split('; ');
+      var result = {};
+      for (var i = 0; i < str.length; i++) {
+        var cur = str[i].split('=');
+        result[cur[0]] = cur[1];
+      }
+      return result; 
+    }
+
+    const id = str_obj(String(document.cookie))['PHPSESSID'];
+    var opponent_socket = null;
+    var socket = io('localhost:89/game', { query: "user=" + id }); /*http://67.160.162.82:89/game*/
   </script>
 
   <script type="text/javascript" src="./javascript/game_socket.js"></script>
@@ -126,10 +142,6 @@
       //jquery ui function that enables tabbed display
       $('.magOppo').tabs();
 
-      //pass cookie string to server to determine user
-      var cookieYum = String(document.cookie);
-      socket.emit('get deck options', cookieYum);
-
       /*
       Top Level Event Handlers:
       */
@@ -149,7 +161,7 @@
           event.preventDefault();
           var msg = $('#text')[0].value; //turn this into fx!
           if (msg != "") {
-            socket.emit('message', msg);
+            socket.emit('message', msg, opponent_socket);
             var li = document.createElement('li');
             li.style.color = "#F02828";
             li.style.textAlign = "right";
@@ -178,10 +190,10 @@
       $('#myHealth').on('mousedown', function (event) {
         if (event.which == 1) {
           this.innerHTML = --myHealth;
-          socket.emit('deltaHealth', false);
+          socket.emit('deltaHealth', false, opponent_socket);
           var timeStamp = getTimeStamp();
           //needs to be debounced (trailing)
-          socket.emit('log', timeStamp, 'Decremented Health to ' + myHealth + ' at ');
+          socket.emit('log', timeStamp, 'Decremented Health to ' + myHealth + ' at ', opponent_socket);
           var li = elt('li', ("Decremented Health to " + myHealth + " at " + timeStamp));
           li.style.color = "#F02828";
           li.style.textAlign = "right";
@@ -189,22 +201,22 @@
         }
         else {
           this.innerHTML = ++myHealth;
-          socket.emit('deltaHealth', true);
+          socket.emit('deltaHealth', true, opponent_socket);
         }
       });
 
       $('#chooseDeck').on('submit', function (event) {
         event.preventDefault();
         var deckChoice = $('.deckOptions')[0].value;
-        $('#chooseDeck').eq(0).remove();
-        socket.emit('deck chosen', socket.id, deckChoice);
+        
+        socket.emit('deck chosen', opponent_socket, deckChoice);
       });
 
       $('#chat-button').on('click', function (event) {
         event.preventDefault();
         var msg = $('#text')[0].value;
         $('#text')[0].value = "";
-        socket.emit('message', msg);
+        socket.emit('message', msg, opponent_socket);
         var li = document.createElement('li');
         li.style.color = "#F02828";
         li.style.textAlign = "right";
@@ -225,20 +237,20 @@
             $(this).css("zIndex", index + Math.round(Math.random() * 120));
             $(this).children()[0].src = './card_images/frontSrc2.jpg';
             var className = this.id.slice(1);
-            socket.emit('flipShowCard', className, "./card_images/frontSrc.jpg");
+            socket.emit('flipShowCard', className, "./card_images/frontSrc.jpg", opponent_socket);
             $(this)[0].style.top = "412px";
             $(this)[0].style.left = "0px";
             if ($(this)[0].style.transform == "rotate(90deg)") {
               $(this).css("transform", "rotate(0deg)");
               var tapTog = true;
-              socket.emit('tapped', className, tapTog);
+              socket.emit('tapped', className, tapTog, opponent_socket);
             }
           }
         });
         index += 120;
         var timeStamp = getTimeStamp();
         var action = 'Shuffled at';
-        socket.emit("log", timeStamp, action);
+        socket.emit("log", timeStamp, action, opponent_socket);
         logHandler(timeStamp, action);
       });
 
@@ -256,7 +268,7 @@
         token.style.background = color1;
         token.style.background = "-webkit-linear-gradient(to top, " + color1 + ", " + color2 + ", " + color3 + ")";
         token.style.background = "linear-gradient(" + angle + "deg, " + color1 + ", " + color2 + ", " + color3 + ")";
-        socket.emit('createToken', powerTough, tokenText, myCardCount, color1, color2, color3, angle);
+        socket.emit('createToken', powerTough, tokenText, myCardCount, color1, color2, color3, angle, opponent_socket);
         $('.board').append(token);
         $(token).draggable({
           containment: "window",
@@ -266,12 +278,12 @@
             var thisCopy = this.id.slice(1);
             if (card.left < 24 && card.left > -24 && card.top < 344 && card.top > 296) {
               $(this).off();
-              socket.emit('destroyToken', this.id.slice(1));
+              socket.emit('destroyToken', this.id.slice(1), opponent_socket);
               myCardCount--;
               this.remove();
             }
             else
-              socket.emit('dragged', card.left, card.top, thisCopy, undefined);
+              socket.emit('dragged', card.left, card.top, thisCopy, undefined, opponent_socket);
           }
         });
         $(token).on('mousedown', function (event) {
@@ -285,7 +297,7 @@
               var tapTog = false;
             }
             var className = this.id.slice(1);
-            socket.emit('tapped', className, tapTog);
+            socket.emit('tapped', className, tapTog, opponent_socket);
           }
         });
       });
@@ -301,7 +313,7 @@
           $(".myCard").draggable("destroy");
           var timeStamp = getTimeStamp();
           var action = "Began Searching Deck at ";
-          socket.emit('log', timeStamp, action);
+          socket.emit('log', timeStamp, action, opponent_socket);
           logHandler(timeStamp, action);
           $('.card').each(function () {
             var card = $(this).position();
@@ -329,9 +341,9 @@
                 x.style.left = 240 + "px";
                 var id = x.id.slice(1);
                 var src = "./card_images/" + $(x).children().data("set_id") + "/" + $(x).children().data("card_id") + ".jpg";
-                socket.emit('flipShowCard', id, src);
+                socket.emit('flipShowCard', id, src, opponent_socket);
                 var card = $(x).position();
-                socket.emit('dragged', card.left, card.top, id, src);
+                socket.emit('dragged', card.left, card.top, id, src, opponent_socket);
                 break;
               case 2:
                 var x = cardArray[index];
@@ -339,7 +351,7 @@
                 x.style.left = 160 + "px";
                 x.children[0].style.display = "initial";
                 var id = x.id.slice(1);
-                socket.emit('dragged', 160, 400, id, false);
+                socket.emit('dragged', 160, 400, id, false, opponent_socket);
                 break;
               case 3:
                 var x = cardArray[index];

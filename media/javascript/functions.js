@@ -153,7 +153,7 @@ function restoreHandlers(fullURL) {
         var card = $(this).position();
         if (!((card.left >= 76 && card.left <= 345 && card.top >= 368 && card.top <= 412) || (card.left >= -12 && card.left <= 174 && card.top <= 220 && card.top >= -12))) {
           var className = this.id.slice(1);
-          socket.emit('flipShowCard', className, $(this).children()[0].src);
+          socket.emit('flipShowCard', className, $(this).children()[0].src, opponent_socket);
         }
         event.preventDefault();
       }
@@ -168,7 +168,7 @@ function restoreHandlers(fullURL) {
             var tapTog = false;
           }
           var className = this.id.slice(1);
-          socket.emit('tapped', className, tapTog);
+          socket.emit('tapped', className, tapTog, opponent_socket);
         }
       }
     }
@@ -193,14 +193,14 @@ function restoreHandlers(fullURL) {
       if ((startCardPos.left >= -16 && startCardPos.left <= 34 && startCardPos.top >= 379 && startCardPos.top <= 427) && !(card.left >= -16 && card.left <= 34 && card.top >= 379 && card.top <= 427)) {
         action = "Drew Card From Deck at ";
         timeStamp = getTimeStamp();
-        socket.emit('log', timeStamp, action);
+        socket.emit('log', timeStamp, action, opponent_socket);
         logHandler(timeStamp, action);
       }
       if ((startCardPos.left <= 24 && startCardPos.left >= -24 && startCardPos.top <= 344 && startCardPos.top >= 296) && !(card.left <= 24 && card.left >= -24 && card.top <= 344 && card.top >= 296)) {
         var cardName = $(this).children().data('cardName');
         action = cardName + " Retrieved From Grave at ";
         timeStamp = getTimeStamp();
-        socket.emit('log', timeStamp, action);
+        socket.emit('log', timeStamp, action, opponent_socket);
         logHandler(timeStamp, action);
       }
       $(this).css("zIndex", index++);
@@ -210,18 +210,18 @@ function restoreHandlers(fullURL) {
         }
         var className = this.id.slice(1);
         var src = "./card_images/" + $(this).children().data("set_id") + "/" + $(this).children().data("card_id") + ".jpg";
-        socket.emit('flipShowCard', className, src);
+        socket.emit('flipShowCard', className, src, opponent_socket);
       }
       //debounce (trailing) this too
       if (card.left < 24 && card.left > -24 && card.top < 344 && card.top > 296) {
         var timeStamp = getTimeStamp();
         var cardName = $(this).children().data('cardName');
         var action = cardName + ' Discarded at '
-        socket.emit('log', timeStamp, action);
+        socket.emit('log', timeStamp, action, opponent_socket);
         logHandler(timeStamp, action);
       }
       var id = this.id.slice(1);
-      socket.emit('dragged', card.left, card.top, id, src);
+      socket.emit('dragged', card.left, card.top, id, src, opponent_socket);
     },
     start: function () {
       startCardPos = $(this).position();

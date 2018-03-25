@@ -17,7 +17,6 @@ const fileUpload = require('express-fileupload');
 
 //Global variable used to map sockets to clients
 var clients = [];
-//var count = 0;
 
 //Connect to MySQL database
 const con = mysql.createConnection({
@@ -48,7 +47,7 @@ app.get('/game', function (req, res) {
   res.sendFile(__dirname + '/game/index.html');
 });
 
-app.post('/builder', (req, res) => { 
+app.post('/builder', (req, res) => {
   let custom_back = req.files.custom_back_img;
   custom_back.mv('./media/db_media/images/' + 'robrob' + '.jpg', (err) => {
     if (err)
@@ -75,23 +74,42 @@ begin on connection event handler for the game namespace
 var game_nsp = io.of('/game');
 
 game_nsp.on('connection', function (socket) {
-  
-  console.log("Player Connected to Server");
 
-  socket.on('dragged', function (left, top, id, src) {
-    socket.broadcast.emit('dragged', left, top, id, src);
+  console.log("Player Connected to server");
+
+  socket.username = "Guest";
+  con.query("SELECT data FROM sessions WHERE id = '" + socket.handshake.query['user'] + "' AND data IS NOT NULL", function (err, result, _fields) {
+
+    if (result[0] && result[0].data) {
+      socket.username = result[0].data.split('"')[1];
+    }
+
+    //add to clients 
+    const client = {
+      id: socket.id,
+      username: socket.username
+    };
+    //present with list of room options
+    clients.push(client);
+    socket.emit('available games', clients);
+    socket.broadcast.emit('available games', clients);
+    //good place to send event to update game options. use broadcast
+
   });
 
-  socket.on('deck chosen', function (id, deck) {
-    if (socket.custom_back) console.log('robrob chose a deck, bish');
-    var client = {};
-    client["id"] = socket.id;
-    client["deck"] = deck;
-    clients.push(client);
-    if (clients.length == 2) {
-      sendDecks();
-      clients = []; 
-    }
+  socket.on('dragged', function (left, top, id, src, opponent) {
+    game_nsp.to(opponent).emit('dragged', left, top, id, src);
+  });
+
+  //going to have to change with new room code
+  //should be able to send decks immediately instead
+  //of waiting for both to be chosen since
+  //deck options will not be given until a room has 2 clients
+  socket.on('deck chosen', function (o_socket, choice) {
+    if (socket.username === 'robrob') 
+      console.log('robrob chose a deck, bish');
+    const this_socket = socket.id;
+    sendDeck(choice, this_socket, o_socket);
   });
 
   socket.on('background', function () {
@@ -106,26 +124,12 @@ game_nsp.on('connection', function (socket) {
     });
   });
 
-  socket.on('get deck options', function (serialized_id) {
-    if (serialized_id) {
-      var id = str_obj(serialized_id)['PHPSESSID'],
-        queryStr = "SELECT data FROM sessions WHERE id = '" + id + "' AND data IS NOT NULL";
-      con.query(queryStr, function (err, result, _fields) {
-        if (result[0] && result[0].data) {
-          var user = result[0].data.split('"')[1];
-          if (user = 'robrob') 
-            socket.custom_back = true; 
-          con.query("SELECT name, owner FROM decks ORDER BY owner = '" + user + "' DESC", function (err, result, _fields) {
-            var options = JSON.parse(JSON.stringify(result));
-            socket.emit('give deck options', options);
-          });
-        }
-        else {
-          con.query("SELECT name FROM decks", function (err, result, _fields) {
-            var options = JSON.parse(JSON.stringify(result));
-            socket.emit('give deck options', options);
-          });
-        }
+  socket.on('get deck options', function () {
+
+    if (socket.username !== 'Guest') {
+      con.query("SELECT name, owner FROM decks ORDER BY owner = '" + socket.username + "' DESC", function (err, result, _fields) {
+        var options = JSON.parse(JSON.stringify(result));
+        socket.emit('give deck options', options);
       });
     }
     else {
@@ -136,47 +140,71 @@ game_nsp.on('connection', function (socket) {
     }
   });
 
-  socket.on('log', function (timeStamp, action) {
-    socket.broadcast.emit('log', timeStamp, action);
-  });
+socket.on('log', function (timeStamp, action, opponent) {
+  game_nsp.to(opponent).emit('log', timeStamp, action);
+});
 
-  socket.on('message', function (msg) {
-    socket.broadcast.emit('message', msg);
-  });
+socket.on('message', function (msg, opponent) {
+  game_nsp.to(opponent).emit('message', msg);
+});
 
-  socket.on('deltaHealth', function (bool) {
-    socket.broadcast.emit('deltaHealth', bool);
-  });
+socket.on('deltaHealth', function (bool, opponent) {
+  game_nsp.to(opponent).emit('deltaHealth', bool);
+});
 
-  socket.on('createToken', function (powerTough, tokenText, myCardCount, color1, color2, color3, angle) {
-    socket.broadcast.emit('createToken', powerTough, tokenText, myCardCount, color1, color2, color3, angle);
-  });
+socket.on('createToken', function (powerTough, tokenText, myCardCount, color1, color2, color3, angle, opponent) {
+  game_nsp.to(opponent).emit('createToken', powerTough, tokenText, myCardCount, color1, color2, color3, angle);
+});
 
-  socket.on('disconnect', function () {
-    /*for (var inc = 0; inc < clients.length; inc++) {
-      if (clients[inc].id == this.id) {
-        clients.splice(inc, 1);
-      }
-    }
-    console.log(--count + " Players Connected to Server");*/
-    console.log('Player disconnected from server');
+socket.on('disconnect', function () {
+  console.log('Player disconnected from server');
+  //filter clients array of this socket (might not exist)
+  clients = clients.filter(item => {
+    if (item.id !== socket.id) return true;
+    else return false;
   });
+  //emit updated clients list
+  socket.broadcast.emit('available games', clients);
+});
 
-  socket.on('tapped', function (id, tapCur) {
-    socket.broadcast.emit('tapped', id, tapCur);
-  });
+socket.on('tapped', function (id, tapCur, opponent) {
+  game_nsp.to(opponent).emit('tapped', id, tapCur);
+});
 
-  socket.on('flipShowCard', function (id, src) {
-    socket.broadcast.emit('flipShowCard', id, src);
-  });
+socket.on('flipShowCard', function (id, src, opponent) {
+  game_nsp.to(opponent).emit('flipShowCard', id, src);
+});
 
-  socket.on('destroyToken', function (id) {
-    socket.broadcast.emit('destroyToken', id);
-  });
+socket.on('destroyToken', function (id, opponent) {
+  game_nsp.to(opponent).emit('destroyToken', id);
+});
 
-  socket.on('addCounter', function (counterText, moreText, id) {
-    socket.broadcast.emit('addCounter', counterText, moreText, id);
-  });
+socket.on('addCounter', function (counterText, moreText, id, opponent) {
+  game_nsp.to(opponent).emit('addCounter', counterText, moreText, id);
+});
+
+//confirm this game choice is still valid
+socket.on('game chosen', socketID => {
+  //if socketID is still in clients
+  if (
+    clients.filter(item => {
+      if (item.id === socketID) return true;
+      else return false;
+    }).length
+  ) {
+    const this_socket = socket.id;
+    //send this socket.id to socketID
+    game_nsp.to(socketID).emit('given other player', this_socket);
+    socket.emit('given other player', socketID);
+    //remove both clients from clients
+    clients = clients.filter(item => {
+      if (item.id !== this_socket && item.id !== socketID) return true;
+      else return false;
+    });
+    //send new client list
+    socket.broadcast.emit('available games', clients);
+  }
+})
 
 });
 //end of connection event handler for game namespace
@@ -255,7 +283,7 @@ db_nsp.on('connection', function (socket) {
       con.query(queryStr, function (err, result, _fields) {
         if (result[0] && result[0].data) {
           var user = result[0].data.split('"')[1];
-          if ( user === "robrob" ) {
+          if (user === "robrob") {
             socket.emit("robrob draft prize");
           }
           con.query("SELECT name FROM decks WHERE owner = '" + user + "'", function (err, result, _fields) {
@@ -386,31 +414,15 @@ function str_obj(str) {
   return result; //can minimize if never figure use for other cookie params
 }
 
-function sendDecks() {
+function sendDeck(choice, owner, opponent) {
 
-  var choice1 = clients[0].deck;
-  var choice2 = clients[1].deck;
-  var socket1 = clients[0].id;
-  var socket2 = clients[1].id;
-
-  var deck = JSON.parse(fs.readFileSync("./media/decks/" + choice1 + ".json", 'utf8'));
+  var deck = JSON.parse(fs.readFileSync("./media/decks/" + choice + ".json", 'utf8'));
   shuffle(deck);
-  game_nsp.to(socket1).emit('given deck', deck);
+  game_nsp.to(owner).emit('given deck', deck);
   var oCards2 = [];
   for (var inc = 0; inc < deck.length; inc++) {
     oCards2.push({ "name": "", "frontSrc": "frontSrc" });
   }
-  game_nsp.to(socket2).emit('given opponent', oCards2);
-
-  if (choice1 != choice2) {
-    deck = JSON.parse(fs.readFileSync("./media/decks/" + choice2 + ".json", 'utf8'));
-  }
-  shuffle(deck);
-  game_nsp.to(socket2).emit('given deck', deck);
-  var oCards1 = [];
-  for (var inc = 0; inc < deck.length; inc++) {
-    oCards1.push({ "name": "", "frontSrc": "frontSrc" });
-  }
-  game_nsp.to(socket1).emit('given opponent', oCards1);
+  game_nsp.to(opponent).emit('given opponent', oCards2);
 
 };
